@@ -1,0 +1,5 @@
+# Devbox generated files
+devbox.json
+devbox.lock
+.devbox/
+.venv/
