@@ -65,7 +65,7 @@ user for a name or visibility, and skip the init script entirely.**
 
 If no remote is configured, ask the user for:
 - **Repository name** — suggest the current folder name (basename of the
-  working directory) as the default. Do not suggest the plugin name.
+  working directory) as the default. Do not suggest other alternatives.
 - **Visibility** — `private` (default) or `public`.
 
 Then run the init script:

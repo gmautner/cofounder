@@ -1,0 +1,80 @@
+---
+name: Pre-Flight Check
+description: >
+  This skill should be used at the very start of every session and when the
+  user asks to "check my environment", "run a pre-flight check", "validate
+  setup requirements", "is my system ready", or before any cofounder project
+  initialization. It verifies the OS is Linux or macOS, the working directory
+  is not the home folder, and no pre-existing untracked content conflicts with
+  setup. It should be triggered before devbox setup, repo setup, or any other
+  cofounder initialization skill.
+version: 0.1.0
+---
+
+# Pre-Flight Check
+
+Validate that the current environment is suitable for project initialization
+before running any other cofounder skill.
+
+## When to Run
+
+Execute the pre-flight check **before any setup or initialization work**. This
+includes devbox setup, repository setup, or any other project scaffolding. If the
+check fails, report the failure reasons to the user and stop — do not attempt to
+proceed with setup.
+
+## Running the Check
+
+```bash
+bash ${CLAUDE_PLUGIN_ROOT}/skills/pre-flight-check/scripts/preflight.sh
+```
+
+The script exits `0` and prints `PREFLIGHT_PASSED` on success, or exits `1` and
+prints `PREFLIGHT_FAILED` followed by one or more error lines on failure.
+
+## Conditions Checked
+
+### 1. Operating System Must Be Linux
+
+The plugin targets Linux and macOS environments. WSL2 is considered Linux (it
+reports `Linux` via `uname -s`). macOS reports `Darwin`. If the OS is native
+Windows or anything else, the check fails.
+
+**On failure:** Inform the user that the cofounder plugin requires Linux or
+macOS and suggest using WSL2 if on Windows.
+
+### 2. Must Not Be in the Home Directory
+
+Running from the user's home folder (`~`) risks polluting it with project files.
+
+**On failure:** Recommend creating and navigating to a project subfolder first
+(e.g., `mkdir ~/my-project && cd ~/my-project`).
+
+### 3. No Pre-Existing Content Without a Git Repository
+
+When **both** of these conditions are true simultaneously, the check fails:
+
+- The directory contains files or folders other than `.claude`, `.devbox`,
+  `.venv`, `devbox.json`, and `devbox.lock`
+- No local git repository has been initialized (`.git/` does not exist)
+
+This prevents accidentally initializing a project on top of untracked existing
+content.
+
+**On failure:** Suggest using an empty directory, or initializing a git
+repository first to acknowledge the existing content.
+
+## Handling Failures
+
+When the pre-flight check fails:
+
+1. Display each error reason to the user in plain language
+2. Provide the recommended remediation for each failure
+3. **Do not proceed** with any setup skills — wait for the user to fix the
+   environment and re-run the check
+
+## Bundled Resources
+
+### Scripts
+
+- **`scripts/preflight.sh`** — Runs all environment validations and reports pass/fail with specific error codes
