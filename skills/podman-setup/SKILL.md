@@ -39,7 +39,7 @@ an error description on failure.
 ### What the Script Does
 
 1. **Check for an existing podman machine** — If none exists, initialize one.
-   On systems with less than 8 GB of RAM, the VM memory is set to 1024 MB
+   On systems with less than 16 GB of RAM, the VM memory is set to 1024 MB
    instead of the default 2048 MB.
 2. **Start the machine** — If the machine exists but is not running, start it.
 3. **Connectivity test** — Pull and run an `nginx:alpine` container, verify
@@ -64,7 +64,7 @@ devbox run -- podman machine ls
 # Initialize (low-memory variant)
 devbox run -- podman machine init --memory 1024
 
-# Initialize (default, 8 GB+ systems)
+# Initialize (default, 16 GB+ systems)
 devbox run -- podman machine init
 
 # Start

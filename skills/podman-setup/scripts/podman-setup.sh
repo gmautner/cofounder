@@ -36,8 +36,8 @@ else
       ;;
   esac
 
-  if [ "$mem_mb" -lt 8192 ]; then
-    log "System has ${mem_mb} MB RAM (< 8 GB). Setting VM memory to 1024 MB."
+  if [ "$mem_mb" -lt 16384 ]; then
+    log "System has ${mem_mb} MB RAM (< 16 GB). Setting VM memory to 1024 MB."
     podman machine init --memory 1024
   else
     log "System has ${mem_mb} MB RAM. Using default VM memory (2048 MB)."
