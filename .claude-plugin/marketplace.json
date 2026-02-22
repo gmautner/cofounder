@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "cofounder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A technical cofounder persona that helps users develop and deploy web applications.",
   "owner": {
     "name": "Gilberto Mautner"
@@ -11,7 +11,7 @@
       "name": "cofounder",
       "source": "./",
       "description": "A technical cofounder persona that helps users develop and deploy web applications.",
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ]
 }
