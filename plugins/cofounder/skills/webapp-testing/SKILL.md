@@ -74,10 +74,26 @@ with sync_playwright() as p:
 
 3. **Execute actions** using discovered selectors
 
-## Common Pitfall
+## Common Pitfalls
 
 - **Don't** inspect the DOM before waiting for `networkidle` on dynamic apps
 - **Do** wait for `page.wait_for_load_state('networkidle')` before inspection
+- **Don't** assume the default Vite port (5173) is available. If another dev server is already using the port, Vite silently picks the next one (5174, 5175, …). Always check the Vite startup output for the actual `Local:` URL before writing test scripts.
+
+## Installing Playwright
+
+The Python provided by devbox (via Nix) is externally managed and blocks direct `pip install`. Always create a virtualenv first:
+
+```bash
+devbox run -- python3 -m venv .venv
+devbox run -- bash -c 'source .venv/bin/activate && pip install playwright && python -m playwright install chromium'
+```
+
+Activate the virtualenv before running Playwright scripts:
+
+```bash
+devbox run -- bash -c 'source .venv/bin/activate && python your_test.py'
+```
 
 ## Best Practices
 

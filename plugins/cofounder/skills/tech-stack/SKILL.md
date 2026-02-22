@@ -59,9 +59,13 @@ All 60+ bundled extensions from `supabase/postgres` are available. See the **loc
 
 All SQL lives in `backend/internal/database/queries/*.sql`. Run `cd backend && sqlc generate` after changes. **Never write raw SQL strings in Go handler code.**
 
+Always include `emit_json_tags: true` in `sqlc.yaml` so that generated Go structs include lowercase JSON tags (e.g., `json:"id"` instead of exporting `ID` as-is). Without this, the API returns PascalCase field names that don't match frontend expectations.
+
 ### Migrations at startup
 
 Embedded SQL files applied in order before the server accepts traffic. Forward-only, numbered sequentially (`001_create_users.sql`, `002_add_tasks.sql`, …). Each migration should be idempotent where possible (`CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`).
+
+The `go:embed` directive only accepts files in the same directory or subdirectories of the file that declares it — paths with `..` are rejected by the compiler. Place the embed directive in a Go file next to the `migrations/` directory (e.g., `backend/internal/database/migrate.go`), not in `cmd/server/main.go`.
 
 ### Real-time updates via SSE
 
@@ -86,17 +90,22 @@ Multi-stage: (1) build frontend with Node, (2) build Go binary, (3) minimal Alpi
 
 All commands run through **devbox** as established by the **devbox-setup** skill. The database runs as a `supabase/postgres` container via **podman** (set up by the **podman-setup** skill), matching the production image.
 
+> **Critical: `go.mod` lives in `backend/`, not in the project root.** All Go and sqlc commands (`go run`, `go build`, `go test`, `go mod tidy`, `sqlc generate`) **must** execute from the `backend/` directory. Always include `cd backend &&` inside the `bash -c` string passed to `devbox run`. When a command chain involves multiple layers of shell invocation (devbox → bash → go), prefer writing a small helper script instead of nesting everything in a single `bash -c` string — this avoids the most common source of repeated build failures.
+
 ### 1. Start the database
 
 ```bash
 # Start supabase/postgres container (matching production image)
+# The -D /etc/postgresql flag is required — without it the container's
+# internal migration scripts fail on missing supabase_admin role and exit.
 devbox run -- podman run -d \
   --name supabase-postgres \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=postgres \
   -p 5432:5432 \
-  supabase/postgres:17.6.1.084
+  supabase/postgres:17.6.1.084 \
+  postgres -D /etc/postgresql
 
 # Verify it's ready
 devbox run -- pg_isready -h localhost -p 5432 -U postgres
