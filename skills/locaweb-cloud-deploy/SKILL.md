@@ -64,12 +64,11 @@ Follow these steps in order. Each step is idempotent -- safe to re-run across ag
 - Meet all [Dockerfile Requirements](#dockerfile-requirements) — single Dockerfile at root, port 80, health check at `/up`, env vars for database connection
 - If using workers: ensure the same Docker image supports a separate command for the worker process
 
-### Step 2: Set up the GitHub repository
+### Step 2: Ensure a GitHub repository is configured
 
-- Check if a git remote is configured (`git remote -v`)
-- If no remote: ask the user whether to use an existing GitHub repo or create a new one
-  - Existing repo: ask for the URL, add as remote
-  - New repo: create with `gh repo create`
+- Check if a git remote is configured: `git remote -v`
+- If `origin` is already set, skip this step
+- If no remote is configured, set one up using the **repo-setup** skill before continuing
 
 ### Step 3: Generate SSH key
 

@@ -5,7 +5,7 @@ All setup steps are idempotent -- safe to re-run across agent sessions. Check fo
 ## Table of Contents
 
 ### Setup
-- [GitHub Repository Setup](#github-repository-setup)
+- [GitHub Repository (Prerequisite)](#github-repository-prerequisite)
 - [SSH Key Generation](#ssh-key-generation)
 - [CloudStack Credentials](#cloudstack-credentials)
 - [Postgres Credentials](#postgres-credentials)
@@ -16,36 +16,13 @@ All setup steps are idempotent -- safe to re-run across agent sessions. Check fo
 - [App Verification Cycle](#app-verification-cycle)
 - [SSH Debugging](#ssh-debugging)
 
-## GitHub Repository Setup
+## GitHub Repository (Prerequisite)
 
-Check if a git remote is already configured:
+Verify a git remote is configured:
 
-```bash
-git remote -v
-```
+    git remote -v
 
-**If no remote is configured**, ask the user:
-- Does an existing GitHub repository already exist for this project?
-- Or should a new one be created?
-
-**Existing repo**: Ask the user for the URL, then add it:
-
-```bash
-git remote add origin https://github.com/<owner>/<repo>.git
-```
-
-**New repo**: Create with the GitHub CLI:
-
-```bash
-gh repo create <repo-name> --private --source=. --remote=origin
-# Use --public instead of --private if the user prefers a public repo
-```
-
-Verify the remote is configured:
-
-```bash
-git remote -v
-```
+If `origin` is not set, use the **repo-setup** skill to initialize the repository before continuing.
 
 ## SSH Key Generation
 
