@@ -100,18 +100,7 @@ gh secret list
 
 If `CLOUDSTACK_API_KEY` and `CLOUDSTACK_SECRET_KEY` appear in the list, skip this step.
 
-Otherwise, ask the user to set them in a separate terminal. **Never** accept secret values through the chat — they would be stored in conversation history.
-
-Tell the user to run:
-
-```bash
-gh secret set CLOUDSTACK_API_KEY
-gh secret set CLOUDSTACK_SECRET_KEY
-```
-
-(`gh secret set` without `--body` reads the value interactively from stdin, so the secret never appears in command history or chat.)
-
-These credentials are issued by the Locaweb Cloud account administrator.
+Otherwise, ask the user to set them via the GitHub UI as described in the [Secrets the user must set via GitHub UI](#secrets-the-user-must-set-via-github-ui) section.
 
 ## Postgres Credentials
 
@@ -153,7 +142,7 @@ gh variable list
 
 Only create secrets that are **not already present**.
 
-**Security rule:** Never accept secret values through the chat — they would be stored in conversation history. For secrets the agent knows (generated passwords, local SSH keys), the agent can set them directly. For secrets only the user knows (CloudStack keys, app API keys), ask the user to set them in a separate terminal.
+**Security rule:** Never accept secret values through the chat — they would be stored in conversation history. For secrets the agent knows (generated passwords, local SSH keys), the agent can set them directly. For secrets only the user knows (CloudStack keys, app API keys), ask the user to set them via the GitHub UI (see [Secrets the user must set via GitHub UI](#secrets-the-user-must-set-via-github-ui)).
 
 ### Secrets the agent can set directly
 

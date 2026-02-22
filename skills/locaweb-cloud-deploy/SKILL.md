@@ -81,7 +81,7 @@ Follow these steps in order. Each step is idempotent -- safe to re-run across ag
 ### Step 4: Collect CloudStack credentials
 
 - Check if `CLOUDSTACK_API_KEY` and `CLOUDSTACK_SECRET_KEY` are already set in the repo (`gh secret list`)
-- If not set: ask the user to set them in a separate terminal (see [references/setup-and-deploy.md](references/setup-and-deploy.md#cloudstack-credentials)). **Never** accept secret values through the chat — they would be stored in conversation history
+- If not set: ask the user to set them via the GitHub UI (see [references/setup-and-deploy.md](references/setup-and-deploy.md#secrets-the-user-must-set-via-github-ui)). **Never** accept secret values through the chat — they would be stored in conversation history
 
 ### Step 5: Set up Postgres credentials
 
@@ -97,7 +97,7 @@ Follow these steps in order. Each step is idempotent -- safe to re-run across ag
 - Only create secrets that are missing: `CLOUDSTACK_API_KEY`, `CLOUDSTACK_SECRET_KEY`, `SSH_PRIVATE_KEY` (from the generated key), `POSTGRES_PASSWORD` (if database is enabled)
 - Secrets common to all environments (e.g., `CLOUDSTACK_API_KEY`, `CLOUDSTACK_SECRET_KEY`) don't need suffixes — pass them to every caller workflow
 - Secrets scoped to additional environments use a suffix matching the environment name (see Step 8)
-- If the app has custom env vars or secrets, ask the user to store each secret **individually** in a separate terminal (e.g., `gh secret set API_KEY`, `gh secret set SMTP_PASSWORD`). Configure clear env vars via `gh variable set ENV_VARS`. **Never** accept secret values through the chat. **Never** store `SECRET_ENV_VARS` as a single GitHub Secret — compose it in the caller workflow from individual secret references (see [references/env-vars.md](references/env-vars.md))
+- If the app has custom env vars or secrets, ask the user to store each secret **individually** via the GitHub UI (see [references/setup-and-deploy.md](references/setup-and-deploy.md#secrets-the-user-must-set-via-github-ui)). Configure clear env vars via `gh variable set ENV_VARS`. **Never** accept secret values through the chat. **Never** store `SECRET_ENV_VARS` as a single GitHub Secret — compose it in the caller workflow from individual secret references (see [references/env-vars.md](references/env-vars.md))
 
 ### Step 7: Create caller workflows
 
