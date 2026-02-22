@@ -11,7 +11,7 @@ Go JSON API + React SPA served from a single binary and deployed as one containe
 
 **Backend:** Go stdlib `net/http` router, `pgx/v5` for Postgres, `sqlc` for query generation, `slog` for logging, embedded SQL migrations via `go:embed`.
 
-**Frontend:** Vite + React + TypeScript, shadcn/ui components, Tailwind CSS, React Router.
+**Frontend:** Vite + React + TypeScript, shadcn/ui components, Tailwind CSS, React Router. When making frontend design decisions (layouts, styling, component aesthetics, UI polish), use the **frontend-design** skill for guidance on creating distinctive, production-grade interfaces.
 
 ## Project Layout
 
