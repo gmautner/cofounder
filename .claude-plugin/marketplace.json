@@ -1,8 +1,5 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "marketplace",
-  "version": "0.1.1",
-  "description": "A technical cofounder persona that helps users develop and deploy web applications.",
+  "name": "giba-plugins",
   "owner": {
     "name": "Gilberto Mautner"
   },
@@ -10,8 +7,7 @@
     {
       "name": "cofounder",
       "source": "./plugins/cofounder/",
-      "description": "A technical cofounder persona that helps users develop and deploy web applications.",
-      "version": "0.1.1"
+      "description": "A technical cofounder persona that helps users develop and deploy web applications."
     }
   ]
 }

@@ -1,11 +1,5 @@
 {
   "name": "cofounder",
   "description": "A technical cofounder persona that helps users develop and deploy web applications.",
-  "version": "0.1.1",
-  "author": {
-    "name": "Gilberto Mautner"
-  },
-  "repository": "https://github.com/gmautner/marketplace",
-  "homepage": "https://github.com/gmautner/marketplace",
-  "license": "Apache-2.0"
+  "version": "0.1.0"
 }
