@@ -122,9 +122,9 @@ Access the app at `http://localhost:5173` during development. Vite proxies `/api
 devbox run -- podman stop supabase-postgres && devbox run -- podman rm supabase-postgres
 ```
 
-## Development Cycle — The Feedback Loop
+## Local Development Feedback Loop
 
-The core workflow is: **write code → spin up local instance → run tests → repeat until the feature works.**
+The core workflow is: **write code → spin up local instance → run tests → repeat until the feature works → commit & push.**
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -147,10 +147,12 @@ The core workflow is: **write code → spin up local instance → run tests → 
 │       Yes                                       │
 │        │                                        │
 │        ▼                                        │
-│   Commit & push                                 │
+│   Commit & push ──► Done                        │
 │                                                 │
 └─────────────────────────────────────────────────┘
 ```
+
+After committing and pushing, ask the user if they want to deploy to the cloud. If yes, use the **locaweb-cloud-deploy** skill to run the **Deployment Feedback Loop**, which monitors the GitHub Actions workflow, verifies the health check, and handles deployment-specific failures.
 
 ### Backend testing (Go)
 

@@ -121,22 +121,51 @@ For each additional environment:
 - The caller workflow maps the suffixed secrets to the workflow's standard secret names
 - For production with a custom domain, see [DNS Configuration](#dns-configuration-for-custom-domains)
 
-## Development Routine
+## Deployment Feedback Loop
 
-After setup is complete, use this cycle to deploy and iterate on the application. See [references/setup-and-deploy.md](references/setup-and-deploy.md) for detailed commands.
+After setup is complete, use this loop to deploy and verify the application. See [references/setup-and-deploy.md](references/setup-and-deploy.md) for detailed commands.
 
-### Commit, push, and deploy
+```
+┌─────────────────────────────────────────────────┐
+│                                                 │
+│   Push triggers GitHub Actions workflow         │
+│        │                                        │
+│        ▼                                        │
+│   Monitor workflow run (gh run watch)           │
+│        │                                        │
+│        ▼                                        │
+│   Workflow succeeds? ──No──► Read logs, fix,    │
+│        │                     commit/push,       │
+│       Yes                    repeat             │
+│        │                                        │
+│        ▼                                        │
+│   Health check: curl /up → HTTP 200?            │
+│        │                                        │
+│       Yes ──► Done (deployment verified)        │
+│        │                                        │
+│       No                                        │
+│        │                                        │
+│        ▼                                        │
+│   SSH debug (logs, container state)             │
+│        │                                        │
+│        ▼                                        │
+│   Return to tech-stack Local Development        │
+│   Feedback Loop to diagnose and fix             │
+│                                                 │
+└─────────────────────────────────────────────────┘
+```
 
-- Commit and push. Follow the GitHub Actions workflow run.
+### Workflow monitoring
+
+- After push, follow the GitHub Actions workflow run
 - If the workflow fails: read the error from the run logs, fix the issue, commit/push, repeat
 - Continue until the workflow succeeds
 
-### Verify the running application
+### Health check verification
 
-- Browse the app at `http://<web_ip>.nip.io` (get `web_ip` from the workflow run summary)
-- Use Playwright for browser-based verification (see [references/setup-and-deploy.md](references/setup-and-deploy.md) for setup)
-- If the app doesn't work: SSH into the VMs to check logs (use the locally saved SSH key and the public IPs from the workflow output), diagnose, fix source code, commit/push, and repeat the deploy cycle
-- Continue until the app works correctly
+- Run `curl -s -o /dev/null -w "%{http_code}" http://<web_ip>.nip.io/up` (get `web_ip` from the workflow run summary)
+- If the health check returns HTTP 200, the deployment is verified and complete
+- If the health check fails or the app doesn't respond: SSH into the VMs to check logs (use the locally saved SSH key and the public IPs from the workflow output), then return to the **tech-stack** skill's Local Development Feedback Loop to diagnose and fix the issue
 
 ## Operations (Post-Deployment)
 
@@ -225,14 +254,14 @@ See [references/scaling.md](references/scaling.md) for VM plans, worker scaling,
 
 See [references/teardown.md](references/teardown.md) for tearing down environments, inferring zone/env_name from existing workflows, and reading last run outputs.
 
-## Development Cycle Without Local Environment
+## Development Without Local Environment
 
-When the developer cannot run the language runtime or database locally:
+When the developer cannot run the language runtime or database locally, the Deployment Feedback Loop becomes the primary iteration cycle:
 
 1. Commit and push changes
-2. Wait for the deploy workflow to complete (triggered on push for preview)
-3. Browse the nip.io preview URL to verify
-4. Repeat
+2. Monitor the workflow run until it succeeds
+3. Run the health check (`curl /up`) to verify
+4. If the health check fails, SSH debug, fix, and repeat from step 1
 
 **Recommendation**: Start with the default `preview` environment triggered on push, without a domain. This gives immediate feedback on every change, with no DNS configuration needed during development. When the app is mature, add additional environments (e.g., `production` with a custom domain, triggered on version tags).
 

@@ -244,45 +244,26 @@ cat /tmp/provision-output/provision-output.json
 
 The app URL is `http://<web_ip>.nip.io` (for preview without a domain).
 
-## App Verification Cycle
+## App Verification (Health Check)
 
-After the workflow succeeds, verify the application is working:
+After the workflow succeeds, verify the application is healthy:
 
-### 1. Browse the app
-
-Open `http://<web_ip>.nip.io` in a browser or fetch with curl:
+### 1. Run the health check
 
 ```bash
-# Health check
+# Health check — must return HTTP 200
 curl -s -o /dev/null -w "%{http_code}" http://<web_ip>.nip.io/up
-
-# Home page
-curl -s http://<web_ip>.nip.io/
 ```
 
-For browser-based verification, use Playwright:
+If HTTP 200 is returned, the deployment is verified and the Deployment Feedback Loop is complete.
 
-```bash
-# Install (one-time, cached for future runs)
-npm install playwright
-npx playwright install chromium
-```
+### 2. If the health check fails
 
-Then use Playwright to navigate pages, take screenshots, fill forms, and verify the app behaves correctly in a real browser.
-
-### 2. If the app doesn't respond or behaves incorrectly
-
-SSH into the VMs to debug. Use the SSH key generated earlier and the public IPs from the workflow output.
+SSH into the VMs to inspect logs and container state. Use the SSH key generated earlier and the public IPs from the workflow output.
 
 See [SSH Debugging](#ssh-debugging) below for detailed commands.
 
-### 3. Fix and redeploy
-
-Fix the source code, commit, push. The preview workflow runs automatically. Watch the run, then verify the app again.
-
-### 4. Repeat until the app works
-
-Continue the cycle: browse -> SSH debug -> fix source -> commit/push -> deploy -> browse.
+After gathering diagnostic information, return to the **tech-stack** skill's Local Development Feedback Loop to diagnose and fix the issue locally before pushing again.
 
 ## SSH Debugging
 
