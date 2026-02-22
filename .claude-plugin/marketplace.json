@@ -1,6 +1,6 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "cofounder",
+  "name": "marketplace",
   "version": "0.1.1",
   "description": "A technical cofounder persona that helps users develop and deploy web applications.",
   "owner": {
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "cofounder",
-      "source": "./",
+      "source": "./plugins/cofounder/",
       "description": "A technical cofounder persona that helps users develop and deploy web applications.",
       "version": "0.1.1"
     }

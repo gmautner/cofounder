@@ -25,7 +25,7 @@ It handles environment setup, dependency management, Git/GitHub workflows, datab
 Add the marketplace and install the plugin:
 
 ```
-/plugin marketplace add gmautner/cofounder
+/plugin marketplace add gmautner/marketplace
 /plugin install cofounder
 ```
 

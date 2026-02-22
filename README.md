@@ -25,7 +25,7 @@ Ele cuida da configuração do ambiente, gerenciamento de dependências, fluxos 
 Adicione o marketplace e instale o plugin:
 
 ```
-/plugin marketplace add gmautner/cofounder
+/plugin marketplace add gmautner/marketplace
 /plugin install cofounder
 ```
 
