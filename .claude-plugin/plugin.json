@@ -4,5 +4,8 @@
   "version": "0.1.0",
   "author": {
     "name": "Gilberto Mautner"
-  }
+  },
+  "repository": "https://github.com/gmautner/cofounder",
+  "homepage": "https://github.com/gmautner/cofounder",
+  "license": "Apache-2.0"
 }
