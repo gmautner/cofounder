@@ -14,6 +14,11 @@ Initialize a local git repository and create a matching remote on GitHub using
 the GH CLI, with device-code authentication that works reliably in all
 environments.
 
+## Prerequisites
+
+A GitHub account is required before proceeding. If the user does not have one,
+refer to the **GitHub Account Creation** skill for sign-up instructions.
+
 ## Authentication
 
 ### Device Code Flow
