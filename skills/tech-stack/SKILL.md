@@ -80,7 +80,7 @@ These match the **locaweb-cloud-deploy** skill requirements:
 
 ## Dockerfile
 
-Multi-stage: (1) build frontend with Node, (2) build Go binary, (3) minimal Alpine runtime with binary + `frontend/dist/` + CA certs. The Go binary embeds migrations; frontend assets are served from `/frontend/dist` on disk.
+Multi-stage: (1) build frontend with Node, (2) build Go binary, (3) minimal Alpine runtime with binary + `frontend/dist/` + CA certs. The Go binary embeds migrations; frontend assets are served from `/frontend/dist` on disk. The Node and Go versions in the Dockerfile must match the versions installed locally by the **devbox-setup** skill — check `devbox.json` for the current versions before writing or updating the Dockerfile.
 
 ## Local Development
 
