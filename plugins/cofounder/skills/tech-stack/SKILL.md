@@ -100,9 +100,7 @@ All commands run through **devbox** as established by the **devbox-setup** skill
 # internal migration scripts fail on missing supabase_admin role and exit.
 devbox run -- podman run -d \
   --name supabase-postgres \
-  -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=postgres \
   -p 5432:5432 \
   supabase/postgres:17.6.1.084 \
   postgres -D /etc/postgresql
