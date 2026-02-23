@@ -17,10 +17,6 @@ Go JSON API + React SPA served from a single binary and deployed as one containe
 
 ```
 .
-├── scripts/
-│   └── start-db.sh              # Idempotent foreground DB starter (for Preview)
-├── .claude/
-│   └── launch.json              # Preview server configuration
 ├── backend/
 │   ├── cmd/server/main.go       # Entrypoint
 │   ├── internal/
@@ -155,68 +151,7 @@ devbox run -- podman stop supabase-postgres && devbox run -- podman rm supabase-
 
 ## Preview (Claude Code Desktop)
 
-When `preview_*` tools are available (Claude Code Desktop), Preview manages the dev servers automatically — you do not need to start or stop them manually. Preview reads `.claude/launch.json` to know which processes to run and which ports to monitor.
-
-### `.claude/launch.json`
-
-Create this file during project scaffolding:
-
-```json
-{
-  "servers": [
-    {
-      "name": "database",
-      "runtimeExecutable": "devbox",
-      "runtimeArgs": ["run", "--", "bash", "scripts/start-db.sh"],
-      "port": 5432,
-      "autoPort": false
-    },
-    {
-      "name": "backend",
-      "runtimeExecutable": "devbox",
-      "runtimeArgs": ["run", "--", "bash", "-c", "cd backend && go run ./cmd/server"],
-      "port": 8080,
-      "env": {
-        "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
-      }
-    },
-    {
-      "name": "frontend",
-      "runtimeExecutable": "devbox",
-      "runtimeArgs": ["run", "--", "bash", "-c", "cd frontend && npm run dev"],
-      "port": 5173
-    }
-  ]
-}
-```
-
-### `scripts/start-db.sh`
-
-Create this file during project scaffolding. It is an idempotent foreground wrapper around the Postgres container:
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-# Remove any stopped container from a previous run
-devbox run -- podman rm -f supabase-postgres 2>/dev/null || true
-
-# Run in foreground — exec replaces the shell so Preview can manage the process lifecycle
-exec devbox run -- podman run \
-  --name supabase-postgres \
-  -e POSTGRES_PASSWORD=postgres \
-  -p 5432:5432 \
-  supabase/postgres:17.6.1.084
-```
-
-Key points:
-- **No `-d` flag** — runs in foreground so Preview can track the process
-- **`exec`** replaces the shell process so that when Preview sends a kill signal, the container stops cleanly
-- **`podman rm -f` first** — makes the script idempotent; safe to restart
-
-### Visual verification with Preview
-
-Use `preview_screenshot` and `preview_click` for quick visual checks during development. Reserve Playwright (via the **webapp-testing** skill) for comprehensive E2E test suites.
+When `preview_*` tools are available (Claude Code Desktop), Preview manages the dev servers automatically — you do not need to start or stop them manually. Use `preview_screenshot`, `preview_click`, and `preview_snapshot` for quick visual checks during development. Reserve Playwright (via the **webapp-testing** skill) for comprehensive E2E test suites.
 
 ## Local Development Feedback Loop
 
