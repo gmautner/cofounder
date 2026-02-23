@@ -79,6 +79,8 @@ If `CLOUDSTACK_API_KEY` and `CLOUDSTACK_SECRET_KEY` appear in the list, skip thi
 
 Otherwise, ask the user to set them via the GitHub UI as described in the [Secrets the user must set via GitHub UI](#secrets-the-user-must-set-via-github-ui) section.
 
+If the user doesn't have a Locaweb Cloud account yet, recommend they go to [locaweb.com.br/locaweb-cloud](https://www.locaweb.com.br/locaweb-cloud/) and look for the **"Contratar"** button to sign up. Once they have an account they can find their API keys in the CloudStack dashboard.
+
 ## Postgres Credentials
 
 Check if the Postgres password secret is already set in the repo:

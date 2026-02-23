@@ -81,6 +81,7 @@ Follow these steps in order. Each step is idempotent -- safe to re-run across ag
 
 - Check if `CLOUDSTACK_API_KEY` and `CLOUDSTACK_SECRET_KEY` are already set in the repo (`gh secret list`)
 - If not set: ask the user to set them via the GitHub UI (see [references/setup-and-deploy.md](references/setup-and-deploy.md#secrets-the-user-must-set-via-github-ui)). **Never** accept secret values through the chat — they would be stored in conversation history
+- If the user doesn't have a Locaweb Cloud account yet, recommend they go to https://www.locaweb.com.br/locaweb-cloud/ and look for the "Contratar" button to sign up
 
 ### Step 5: Set up Postgres credentials
 
