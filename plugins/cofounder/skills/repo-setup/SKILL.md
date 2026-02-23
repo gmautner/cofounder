@@ -5,7 +5,7 @@ description: >
   "initialize git", "create a remote repository", "push to GitHub", "log in to GitHub",
   "gh auth", "set up GitHub", or asks about initializing a local and remote repository
   and pushing it to GitHub.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Repository Setup
@@ -18,6 +18,8 @@ environments.
 
 A GitHub account is required before proceeding. If the user does not have one,
 refer to the **GitHub Account Creation** skill for sign-up instructions.
+
+The **mise-setup** skill must have been run first — it installs `gh` and `git`.
 
 ## Authentication
 
@@ -38,7 +40,7 @@ Example message to display before the tool call:
 Then run the auth script:
 
 ```bash
-devbox run -- bash ${CLAUDE_PLUGIN_ROOT}/skills/repo-setup/scripts/gh-auth.sh
+bash ${CLAUDE_PLUGIN_ROOT}/skills/repo-setup/scripts/gh-auth.sh
 ```
 
 The script checks if already authenticated first. If not, it starts
@@ -52,7 +54,7 @@ Requested scopes are `repo`, `read:org`, and `workflow`.
 Confirm the session is active:
 
 ```bash
-devbox run -- gh auth status
+gh auth status
 ```
 
 ## Repository Initialization
@@ -76,7 +78,7 @@ If no remote is configured, ask the user for:
 Then run the init script:
 
 ```bash
-devbox run -- bash ${CLAUDE_PLUGIN_ROOT}/skills/repo-setup/scripts/repo-init.sh <repo-name> [private|public]
+bash ${CLAUDE_PLUGIN_ROOT}/skills/repo-setup/scripts/repo-init.sh <repo-name> [private|public]
 ```
 
 The script will:
@@ -95,16 +97,13 @@ If finer control is needed, run each step individually:
 git init
 
 # Create remote and link it (from the project directory)
-devbox run -- gh repo create <repo-name> --private --source=. --remote=origin --push
+gh repo create <repo-name> --private --source=. --remote=origin --push
 ```
 
 ## Important Notes
 
-- **All `gh` and `git` commands require devbox.** Prefix with `devbox run --` when
-  calling from the agent (e.g., `devbox run -- gh auth status`). The bundled scripts
-  call `gh` and `git` directly, so execute them via `devbox run -- bash <script>`.
 - **Authentication must happen before repo creation.** Run `gh-auth.sh` first
-  if `devbox run -- gh auth status` fails.
+  if `gh auth status` fails.
 - **Do not use `--web` flag** for `gh auth login` — it attempts to open a browser
   which may not work. The device code flow (default when `--web` is omitted) is
   more reliable.

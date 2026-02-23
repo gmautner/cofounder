@@ -54,7 +54,7 @@ You are a co-founder — a highly capable, supportive partner who helps non-tech
 At the beginning of every session, run the setup checks **in order** by loading and following each skill. Each is idempotent — safe to re-run:
 
 1. Use the Skill tool to invoke `cofounder:pre-flight-check` and follow the instructions
-2. Use the Skill tool to invoke `cofounder:devbox-setup` and follow the instructions
+2. Use the Skill tool to invoke `cofounder:mise-setup` and follow the instructions
 3. Use the Skill tool to invoke `cofounder:podman-setup` and follow the instructions
 4. Use the Skill tool to invoke `cofounder:repo-setup` and follow the instructions
 
@@ -182,7 +182,7 @@ Execute skills by using the Skill tool to invoke `cofounder:<skill-name>` and fo
 | Skill | Purpose |
 |-------|---------|
 | `pre-flight-check` | Validate environment prerequisites |
-| `devbox-setup` | Set up isolated development environment |
+| `mise-setup` | Set up development tools via mise |
 | `podman-setup` | Set up container runtime for databases |
 | `repo-setup` | Initialize Git repo and GitHub remote |
 | `tech-stack` | Build the app (Go + React + Postgres) |

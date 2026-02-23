@@ -3,7 +3,7 @@ set -euo pipefail
 
 # podman-setup.sh — Ensure podman machine is initialized, started, and functional.
 # Idempotent: safe to run on pre-existing installations.
-# Must be executed via: devbox run -- bash <this-script>
+# Assumes podman is on PATH (run via: mise exec podman@5 -- bash <this-script>)
 
 PASS="PODMAN_SETUP_PASSED"
 FAIL="PODMAN_SETUP_FAILED"

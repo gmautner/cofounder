@@ -82,17 +82,28 @@ with sync_playwright() as p:
 
 ## Installing Playwright
 
-The Python provided by devbox (via Nix) is externally managed and blocks direct `pip install`. Always create a virtualenv first:
+Create a virtualenv first, then install Playwright inside it:
 
 ```bash
-devbox run -- python3 -m venv .venv
-devbox run -- bash -c 'source .venv/bin/activate && pip install playwright && python -m playwright install chromium'
+# macOS/Linux:
+mise exec python@3.14 -- python -m venv .venv
+mise exec python@3.14 -- bash -c 'source .venv/bin/activate && pip install playwright && python -m playwright install chromium'
 ```
 
 Activate the virtualenv before running Playwright scripts:
 
 ```bash
-devbox run -- bash -c 'source .venv/bin/activate && python your_test.py'
+# macOS/Linux:
+mise exec python@3.14 -- bash -c 'source .venv/bin/activate && python your_test.py'
+```
+
+**Windows note:** Use `.venv\Scripts\activate` instead of `source .venv/bin/activate`, or call `.venv\Scripts\python.exe` directly:
+
+```powershell
+mise exec python@3.14 -- python -m venv .venv
+.venv\Scripts\python.exe -m pip install playwright
+.venv\Scripts\python.exe -m playwright install chromium
+.venv\Scripts\python.exe your_test.py
 ```
 
 ## Best Practices
