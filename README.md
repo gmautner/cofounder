@@ -1,12 +1,12 @@
 # Cofounder
 
-Um plugin para o [Claude Code](https://docs.anthropic.com/en/docs/claude-code) que atua como seu tech cofounder — guiando da ideia ao app publicado na internet, mesmo que você nunca tenha escrito uma linha de código.
+Um plugin para o [Claude Code](https://docs.anthropic.com/en/docs/claude-code) que atua como seu cofundador — guiando da ideia ao app publicado na internet, mesmo que você nunca tenha escrito uma linha de código.
 
 [Click here for the English version](README.en.md)
 
 ## O que ele faz
 
-Cofounder é um parceiro técnico movido por IA que ajuda você a:
+Cofounder é um cofundador movido por IA que ajuda você a:
 
 - **Descrever sua ideia** em linguagem simples e obter um documento estruturado de requisitos (PRD)
 - **Construir um app web completo** (Go + React + PostgreSQL) com desenvolvimento guiado

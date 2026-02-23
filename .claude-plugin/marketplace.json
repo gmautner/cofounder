@@ -7,7 +7,7 @@
     {
       "name": "cofounder",
       "source": "./plugins/cofounder/",
-      "description": "A technical cofounder persona that helps users develop and deploy web applications."
+      "description": "Um cofundador que ajuda a desenvolver e publicar aplicações web."
     }
   ]
 }

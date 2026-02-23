@@ -1,6 +1,6 @@
 # Cofounder Plugin
 
-A technical cofounder that helps you build and deploy web applications using Go, React, and Postgres — even if you have no programming experience.
+A co-founder that helps you build and deploy web applications using Go, React, and Postgres — even if you have no programming experience.
 
 ## Installation
 
