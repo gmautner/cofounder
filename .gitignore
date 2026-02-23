@@ -1,7 +1,2 @@
-# Devbox generated files
-plugins/*/devbox.json
-plugins/*/devbox.lock
-plugins/*/.devbox/
 plugins/*/.venv/
-.devbox/
 .venv/
