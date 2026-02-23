@@ -17,6 +17,10 @@ Go JSON API + React SPA served from a single binary and deployed as one containe
 
 ```
 .
+├── scripts/
+│   └── start-db.sh              # Idempotent foreground DB starter (for Preview)
+├── .claude/
+│   └── launch.json              # Preview server configuration
 ├── backend/
 │   ├── cmd/server/main.go       # Entrypoint
 │   ├── internal/
@@ -66,6 +70,29 @@ Always include `emit_json_tags: true` in `sqlc.yaml` so that generated Go struct
 Embedded SQL files applied in order before the server accepts traffic. Forward-only, numbered sequentially (`001_create_users.sql`, `002_add_tasks.sql`, …). Each migration should be idempotent where possible (`CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`).
 
 The `go:embed` directive only accepts files in the same directory or subdirectories of the file that declares it — paths with `..` are rejected by the compiler. Place the embed directive in a Go file next to the `migrations/` directory (e.g., `backend/internal/database/migrate.go`), not in `cmd/server/main.go`.
+
+### Database connection retry
+
+The Go backend should retry the database connection at startup (up to 10 attempts, 1-second delay between each). This handles parallel startup — Preview starts all servers simultaneously, so the backend may come up before the database is ready — and is also good practice for production deployments.
+
+```go
+var pool *pgxpool.Pool
+for i := range 10 {
+    pool, err = pgxpool.New(ctx, os.Getenv("DATABASE_URL"))
+    if err == nil {
+        if err = pool.Ping(ctx); err == nil {
+            break
+        }
+        pool.Close()
+    }
+    slog.Warn("database not ready, retrying", "attempt", i+1, "err", err)
+    time.Sleep(time.Second)
+}
+if err != nil {
+    slog.Error("failed to connect to database", "err", err)
+    os.Exit(1)
+}
+```
 
 ### Real-time updates via SSE
 
@@ -126,34 +153,105 @@ Access the app at `http://localhost:5173` during development. Vite proxies `/api
 devbox run -- podman stop supabase-postgres && devbox run -- podman rm supabase-postgres
 ```
 
+## Preview (Claude Code Desktop)
+
+When `preview_*` tools are available (Claude Code Desktop), Preview manages the dev servers automatically — you do not need to start or stop them manually. Preview reads `.claude/launch.json` to know which processes to run and which ports to monitor.
+
+### `.claude/launch.json`
+
+Create this file during project scaffolding:
+
+```json
+{
+  "servers": [
+    {
+      "name": "database",
+      "runtimeExecutable": "devbox",
+      "runtimeArgs": ["run", "--", "bash", "scripts/start-db.sh"],
+      "port": 5432,
+      "autoPort": false
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "devbox",
+      "runtimeArgs": ["run", "--", "bash", "-c", "cd backend && go run ./cmd/server"],
+      "port": 8080,
+      "env": {
+        "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+      }
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "devbox",
+      "runtimeArgs": ["run", "--", "bash", "-c", "cd frontend && npm run dev"],
+      "port": 5173
+    }
+  ]
+}
+```
+
+### `scripts/start-db.sh`
+
+Create this file during project scaffolding. It is an idempotent foreground wrapper around the Postgres container:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Remove any stopped container from a previous run
+devbox run -- podman rm -f supabase-postgres 2>/dev/null || true
+
+# Run in foreground — exec replaces the shell so Preview can manage the process lifecycle
+exec devbox run -- podman run \
+  --name supabase-postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 5432:5432 \
+  supabase/postgres:17.6.1.084
+```
+
+Key points:
+- **No `-d` flag** — runs in foreground so Preview can track the process
+- **`exec`** replaces the shell process so that when Preview sends a kill signal, the container stops cleanly
+- **`podman rm -f` first** — makes the script idempotent; safe to restart
+
+### Visual verification with Preview
+
+Use `preview_screenshot` and `preview_click` for quick visual checks during development. Reserve Playwright (via the **webapp-testing** skill) for comprehensive E2E test suites.
+
 ## Local Development Feedback Loop
+
+> **Preview mode:** If you have access to `preview_*` tools (Claude Code Desktop), Preview manages the dev servers — **do not start them manually**. Use `preview_screenshot`, `preview_snapshot`, and `preview_click` for visual verification instead of Playwright for quick checks. Use Playwright (via the **webapp-testing** skill) for comprehensive E2E test suites.
 
 The core workflow is: **write code → spin up local instance → run tests → repeat until the feature works → commit & push.**
 
 ```
-┌─────────────────────────────────────────────────┐
-│                                                 │
-│   Write / Edit Code                             │
-│        │                                        │
-│        ▼                                        │
-│   Start Local Services                          │
-│   (podman supabase, go run, npm dev)            │
-│        │                                        │
-│        ▼                                        │
-│   Run Backend Tests (Go)                        │
-│        │                                        │
-│        ▼                                        │
-│   Run Frontend Tests (Playwright)               │
-│        │                                        │
-│        ▼                                        │
-│   Tests pass? ──No──► Fix & repeat from top     │
-│        │                                        │
-│       Yes                                       │
-│        │                                        │
-│        ▼                                        │
-│   Commit & push ──► Done                        │
-│                                                 │
-└─────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────┐
+│                                                      │
+│   Write / Edit Code                                  │
+│        │                                             │
+│        ▼                                             │
+│   preview_* tools available?                         │
+│     Yes ──► Preview manages servers automatically    │
+│     No  ──► Start services manually                  │
+│             (podman supabase, go run, npm dev)        │
+│        │                                             │
+│        ▼                                             │
+│   Run Backend Tests (Go)                             │
+│        │                                             │
+│        ▼                                             │
+│   Visual / E2E Verification                          │
+│     Preview mode: preview_screenshot + preview_click │
+│     CLI mode: Playwright (webapp-testing skill)      │
+│        │                                             │
+│        ▼                                             │
+│   Tests pass? ──No──► Fix & repeat from top          │
+│        │                                             │
+│       Yes                                            │
+│        │                                             │
+│        ▼                                             │
+│   Commit & push ──► Done                             │
+│                                                      │
+└──────────────────────────────────────────────────────┘
 ```
 
 After committing and pushing, ask the user if they want to deploy to the cloud. If yes, use the **locaweb-cloud-deploy** skill to run the **Deployment Feedback Loop**, which monitors the GitHub Actions workflow, verifies the health check, and handles deployment-specific failures.
