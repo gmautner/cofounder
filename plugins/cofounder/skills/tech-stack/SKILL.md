@@ -96,15 +96,12 @@ All commands run through **devbox** as established by the **devbox-setup** skill
 
 ```bash
 # Start supabase/postgres container (matching production image)
-# The -D /etc/postgresql flag is required — without it the container's
-# internal migration scripts fail on missing supabase_admin role and exit.
+# Important: provide only the POSTGRES_PASSWORD environment variable. The database is started with both user and database name preset to `postgres`.
 devbox run -- podman run -d \
   --name supabase-postgres \
   -e POSTGRES_PASSWORD=postgres \
   -p 5432:5432 \
-  supabase/postgres:17.6.1.084 \
-  postgres -D /etc/postgresql
-
+  supabase/postgres:17.6.1.084
 # Verify it's ready
 devbox run -- pg_isready -h localhost -p 5432 -U postgres
 ```

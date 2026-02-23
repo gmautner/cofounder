@@ -1,5 +1,5 @@
 ---
-description: Start the cofounder agent to set up your environment and work on your web app
+description: (Advanced) Run the cofounder agent once without installing it as the main thread. For most users, use /cofounder:install instead to ensure the cofounder is always active in your project.
 allowed-tools:
   - Task
 ---
