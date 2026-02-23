@@ -43,10 +43,10 @@ Ensure the project `.gitignore` includes at least:
 frontend/dist/
 frontend/node_modules/
 .venv/
-.vscode/launch.json
+.claude/launch.json
 ```
 
-`.vscode/launch.json` is generated locally by Claude Code Desktop's Preview feature and contains platform-specific commands — it must not be committed.
+`.claude/launch.json` is generated locally by Claude Code Desktop's Preview feature and contains platform-specific commands — it must not be committed.
 
 ## Key Decisions
 
