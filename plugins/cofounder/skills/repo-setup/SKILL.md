@@ -5,7 +5,7 @@ description: >
   "initialize git", "create a remote repository", "push to GitHub", "log in to GitHub",
   "gh auth", "set up GitHub", or asks about initializing a local and remote repository
   and pushing it to GitHub.
-version: 0.2.0
+version: 0.3.0
 ---
 
 # Repository Setup
@@ -19,39 +19,34 @@ environments.
 A GitHub account is required before proceeding. If the user does not have one,
 refer to the **GitHub Account Creation** skill for sign-up instructions.
 
-The **mise-setup** skill must have been run first — it installs `gh` and `git`.
+The **computer-setup** skill must have been run first — it installs `gh` and `git`.
 
 ## Authentication
 
 ### Device Code Flow
 
-The GH CLI supports a device code flow that does not depend on automatically
-opening a browser window. This is the preferred method because the agent cannot
-guarantee browser access.
+Run `gh auth status` — interpret whether it shows the user as authenticated.
 
-**Before running the auth command, display a message to the user** telling
-them to watch for the one-time code.
-Example message to display before the tool call:
-
-> **GitHub login required.** Look for your one-time code (`XXXX-XXXX`)
-> in the command output below. Open **https://github.com/login/device**
-> in your browser and enter the code.
-
-Then run the auth script:
+If not authenticated, run:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/repo-setup/scripts/gh-auth.sh
+GH_FORCE_TTY=1 NO_COLOR=1 GH_PROMPT_DISABLED=1 gh auth login --hostname github.com --git-protocol https --scopes "repo,read:org,workflow" > /tmp/gh-auth.log 2>&1 & sleep 3 && cat /tmp/gh-auth.log
 ```
 
-The script checks if already authenticated first. If not, it starts
-`gh auth login` using the device code flow (no `--web` flag). The command
-prints a one-time code and URL, then blocks until the user authorizes in
-the browser. After authorization, credentials are stored automatically.
-Requested scopes are `repo`, `read:org`, and `workflow`.
+Retrieve the one-time code from the output and display it **very prominently**
+to the user along with the URL https://github.com/login/device. For example:
+
+> **GitHub login required!**
+>
+> Your one-time code is: **`XXXX-XXXX`**
+>
+> Open **https://github.com/login/device** in your browser and enter the code.
+
+Ask the user to complete the browser authorization and confirm when done.
 
 ### Verifying Authentication
 
-Confirm the session is active:
+After the user confirms, verify:
 
 ```bash
 gh auth status
@@ -102,7 +97,7 @@ gh repo create <repo-name> --private --source=. --remote=origin --push
 
 ## Important Notes
 
-- **Authentication must happen before repo creation.** Run `gh-auth.sh` first
+- **Authentication must happen before repo creation.** Run the auth flow first
   if `gh auth status` fails.
 - **Do not use `--web` flag** for `gh auth login` — it attempts to open a browser
   which may not work. The device code flow (default when `--web` is omitted) is
@@ -114,5 +109,4 @@ gh repo create <repo-name> --private --source=. --remote=origin --push
 
 ### Scripts
 
-- **`scripts/gh-auth.sh`** — Authenticates with GitHub using the device code flow; prints the one-time code and URL for the user
 - **`scripts/repo-init.sh`** — Initializes local git repo and creates the matching GitHub remote in one step

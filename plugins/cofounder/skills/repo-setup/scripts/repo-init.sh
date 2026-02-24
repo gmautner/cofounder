@@ -18,7 +18,7 @@ fi
 
 # Ensure gh is authenticated
 if ! gh auth status &>/dev/null; then
-  echo "ERROR: Not authenticated with GitHub. Run gh-auth.sh first." >&2
+  echo "ERROR: Not authenticated with GitHub. Run 'gh auth login' first." >&2
   exit 1
 fi
 

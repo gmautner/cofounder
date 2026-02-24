@@ -86,21 +86,21 @@ Create a virtualenv first, then install Playwright inside it:
 
 ```bash
 # macOS/Linux:
-mise exec python@3.14 -- python -m venv .venv
-mise exec python@3.14 -- bash -c 'source .venv/bin/activate && pip install playwright && python -m playwright install chromium'
+python -m venv .venv
+bash -c 'source .venv/bin/activate && pip install playwright && python -m playwright install chromium'
 ```
 
 Activate the virtualenv before running Playwright scripts:
 
 ```bash
 # macOS/Linux:
-mise exec python@3.14 -- bash -c 'source .venv/bin/activate && python your_test.py'
+bash -c 'source .venv/bin/activate && python your_test.py'
 ```
 
 **Windows note:** Use `.venv\Scripts\activate` instead of `source .venv/bin/activate`, or call `.venv\Scripts\python.exe` directly:
 
 ```powershell
-mise exec python@3.14 -- python -m venv .venv
+python -m venv .venv
 .venv\Scripts\python.exe -m pip install playwright
 .venv\Scripts\python.exe -m playwright install chromium
 .venv\Scripts\python.exe your_test.py

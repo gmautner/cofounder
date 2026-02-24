@@ -2,8 +2,7 @@
 set -euo pipefail
 
 # podman-setup.sh — Ensure podman machine is initialized, started, and functional.
-# Idempotent: safe to run on pre-existing installations.
-# Assumes podman is on PATH (run via: mise exec podman@5 -- bash <this-script>)
+# Mac-only. Idempotent: safe to run on pre-existing installations.
 
 PASS="PODMAN_SETUP_PASSED"
 FAIL="PODMAN_SETUP_FAILED"
@@ -23,18 +22,8 @@ if machine_exists; then
 else
   log "No podman machine found. Initializing..."
 
-  # Detect total physical memory (MB)
-  case "$(uname -s)" in
-    Darwin)
-      mem_mb=$(( $(sysctl -n hw.memsize) / 1048576 ))
-      ;;
-    Linux)
-      mem_mb=$(awk '/MemTotal/ {printf "%d", $2/1024}' /proc/meminfo)
-      ;;
-    *)
-      mem_mb=8192  # assume sufficient on unknown OS
-      ;;
-  esac
+  # Detect total physical memory (MB) — macOS only
+  mem_mb=$(( $(sysctl -n hw.memsize) / 1048576 ))
 
   if [ "$mem_mb" -lt 16384 ]; then
     log "System has ${mem_mb} MB RAM (< 16 GB). Setting VM memory to 1024 MB."

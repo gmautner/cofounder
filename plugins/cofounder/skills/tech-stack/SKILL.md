@@ -48,6 +48,8 @@ frontend/node_modules/
 
 `.claude/launch.json` is generated locally by Claude Code Desktop's Preview feature and contains platform-specific commands — it must not be committed.
 
+`mise.toml` should **not** be gitignored — it is committed to the repo so all developers use the same tool versions.
+
 ## Key Decisions
 
 ### Single-binary serving
@@ -118,45 +120,49 @@ These match the **locaweb-cloud-deploy** skill requirements:
 
 ## Dockerfile
 
-Multi-stage: (1) build frontend with Node, (2) build Go binary, (3) minimal Alpine runtime with binary + `frontend/dist/` + CA certs. The Go binary embeds migrations; frontend assets are served from `/frontend/dist` on disk. The Node and Go versions in the Dockerfile must match the versions installed locally — run `mise exec go@1 -- go version` and `mise exec node@24 -- node --version` to check current versions before writing or updating the Dockerfile.
+Multi-stage: (1) build frontend with Node, (2) build Go binary, (3) minimal Alpine runtime with binary + `frontend/dist/` + CA certs. The Go binary embeds migrations; frontend assets are served from `/frontend/dist` on disk. The Node and Go versions in the Dockerfile must match the versions installed locally — run `go version` and `node --version` to check current versions before writing or updating the Dockerfile.
 
 ## Local Development
 
-All commands run through **mise** as established by the **mise-setup** skill. The database runs as a `supabase/postgres` container via **podman** (set up by the **podman-setup** skill), matching the production image. On macOS and Linux, podman is invoked via `mise exec podman@5 --`; on Windows, `podman` is on PATH directly.
+All tools are on PATH via **mise** (set up by **computer-setup**). The database runs as a `supabase/postgres` container via **podman** (also set up by **computer-setup**), matching the production image.
 
-> **Critical: `go.mod` lives in `backend/`, not in the project root.** All Go and sqlc commands (`go run`, `go build`, `go test`, `go mod tidy`, `sqlc generate`) **must** execute from the `backend/` directory. Always include `cd backend &&` inside the `bash -c` string passed to `mise exec`. When a command chain involves multiple layers of shell invocation (mise → bash → go), prefer writing a small helper script instead of nesting everything in a single `bash -c` string — this avoids the most common source of repeated build failures.
+> **Critical: `go.mod` lives in `backend/`, not in the project root.** All Go and sqlc commands (`go run`, `go build`, `go test`, `go mod tidy`, `sqlc generate`) **must** execute from the `backend/` directory. Always include `cd backend &&` inside the `bash -c` string. When a command chain involves multiple layers of shell invocation (bash → go), prefer writing a small helper script instead of nesting everything in a single `bash -c` string — this avoids the most common source of repeated build failures.
+
+### Project tool versions
+
+On first setup (when `mise.toml` does not yet exist in the project root), lock the tool versions:
+
+```bash
+mise use go@1 sqlc@1 python@3.14 node@24 jq@1
+```
+
+This creates a `mise.toml` that is committed to the repo, ensuring all developers use the same versions. If a version upgrade is needed later, re-run `mise use` with the new version.
 
 ### 1. Start the database
 
 ```bash
 # Start supabase/postgres container (matching production image)
 # Important: provide only the POSTGRES_PASSWORD environment variable. The database is started with both user and database name preset to `postgres`.
-# macOS/Linux:
-mise exec podman@5 -- podman run -d \
+podman run -d \
   --name supabase-postgres \
   -e POSTGRES_PASSWORD=postgres \
   -p 5432:5432 \
   supabase/postgres:17.6.1.084
-# Windows:
-# podman run -d --name supabase-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 supabase/postgres:17.6.1.084
 
 # Verify it's ready (uses container exec instead of pg_isready)
-# macOS/Linux:
-mise exec podman@5 -- podman exec supabase-postgres pg_isready -U postgres
-# Windows:
-# podman exec supabase-postgres pg_isready -U postgres
+podman exec supabase-postgres pg_isready -U postgres
 ```
 
 ### 2. Start the Go API (terminal 1)
 
 ```bash
-mise exec go@1 -- bash -c 'cd backend && DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go run ./cmd/server'
+bash -c 'cd backend && DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go run ./cmd/server'
 ```
 
 ### 3. Start the Vite dev server (terminal 2)
 
 ```bash
-mise exec node@24 -- bash -c 'cd frontend && npm install && npm run dev'
+bash -c 'cd frontend && npm install && npm run dev'
 ```
 
 Access the app at `http://localhost:5173` during development. Vite proxies `/api/*` and `/auth/*` to the Go backend.
@@ -164,10 +170,7 @@ Access the app at `http://localhost:5173` during development. Vite proxies `/api
 ### Stopping the database
 
 ```bash
-# macOS/Linux:
-mise exec podman@5 -- podman stop supabase-postgres && mise exec podman@5 -- podman rm supabase-postgres
-# Windows:
-# podman stop supabase-postgres && podman rm supabase-postgres
+podman stop supabase-postgres && podman rm supabase-postgres
 ```
 
 ## Preview (Claude Code Desktop)
@@ -217,7 +220,7 @@ After committing and pushing, ask the user if they want to deploy to the cloud. 
 Run unit tests against the local database:
 
 ```bash
-mise exec go@1 -- bash -c 'cd backend && DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go test ./...'
+bash -c 'cd backend && DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go test ./...'
 ```
 
 - Test files live next to the code they test (`handler/todo_test.go` tests `handler/todo.go`).
@@ -230,13 +233,11 @@ mise exec go@1 -- bash -c 'cd backend && DATABASE_URL="postgres://postgres:postg
 Use the **webapp-testing** skill for Playwright-based end-to-end testing. The `with_server.py` helper manages the full stack:
 
 ```bash
-# macOS/Linux:
-mise exec python@3.14 -- python skills/webapp-testing/scripts/with_server.py \
-  --server "mise exec podman@5 -- podman start supabase-postgres || true" --port 5432 \
-  --server "cd backend && DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable' mise exec go@1 -- go run ./cmd/server" --port 8080 \
-  --server "cd frontend && mise exec node@24 -- npm run dev" --port 5173 \
-  -- mise exec python@3.14 -- python test_script.py
-# Windows: replace "mise exec podman@5 -- podman" with "podman" in the --server argument above
+python skills/webapp-testing/scripts/with_server.py \
+  --server "podman start supabase-postgres || true" --port 5432 \
+  --server "cd backend && DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable' go run ./cmd/server" --port 8080 \
+  --server "cd frontend && npm run dev" --port 5173 \
+  -- python test_script.py
 ```
 
 Or, if services are already running, write a standalone Playwright script:
@@ -260,7 +261,7 @@ Follow the reconnaissance-then-action pattern: screenshot → identify selectors
 Whenever SQL queries change:
 
 ```bash
-mise exec sqlc@1 -- bash -c 'cd backend && sqlc generate'
+bash -c 'cd backend && sqlc generate'
 ```
 
 Then update the Go code that calls the generated functions. Never hand-write SQL in Go files.
@@ -271,7 +272,7 @@ Then update the Go code that calls the generated functions. Never hand-write SQL
 - **Logging:** `slog` exclusively. Never `fmt.Println` or `log.Println`.
 - **Validation:** Server-side validation for all inputs. Never trust client-side validation alone.
 - **Authorization:** Checks in every handler, not just middleware.
-- **Frontend components:** `mise exec node@24 -- bash -c 'cd frontend && npx shadcn@latest add <component>'`
+- **Frontend components:** `bash -c 'cd frontend && npx shadcn@latest add <component>'`
 - **No ORMs.** SQL through sqlc only.
 - **No CSS preprocessors.** Tailwind CSS only.
 - **No additional JavaScript frameworks.** React + React Router only.

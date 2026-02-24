@@ -97,10 +97,10 @@ Generate a random password for **each** environment:
 
 ```bash
 # Preview password
-mise exec python@3.14 -- python -c "import secrets; print(secrets.token_urlsafe(32))"
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 # Production password (different from preview)
-mise exec python@3.14 -- python -c "import secrets; print(secrets.token_urlsafe(32))"
+python -c "import secrets; print(secrets.token_urlsafe(32))"
 ```
 
 The default preview environment uses unsuffixed names: `POSTGRES_PASSWORD`.

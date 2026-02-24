@@ -5,10 +5,9 @@ description: >
   user asks to "check my environment", "run a pre-flight check", "validate
   setup requirements", "is my system ready", or before any cofounder project
   initialization. It verifies the working directory is not the home folder
-  and no pre-existing untracked content conflicts with setup. It should be
-  triggered before mise setup, repo setup, or any other cofounder
-  initialization skill.
-version: 0.2.0
+  and no pre-existing untracked content conflicts with setup. It runs after
+  computer-setup and before repo-setup.
+version: 0.3.0
 ---
 
 # Pre-Flight Check
@@ -18,10 +17,9 @@ before running any other cofounder skill.
 
 ## When to Run
 
-Execute the pre-flight check **before any setup or initialization work**. This
-includes mise setup, repository setup, or any other project scaffolding. If the
-check fails, report the failure reasons to the user and stop — do not attempt to
-proceed with setup.
+Execute the pre-flight check **after computer-setup and before repo-setup**.
+If the check fails, report the failure reasons to the user and stop — do not
+attempt to proceed with setup.
 
 ## Running the Check
 
