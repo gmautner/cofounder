@@ -196,6 +196,36 @@ podman stop "$CONTAINER_NAME" && podman rm "$CONTAINER_NAME"
 
 When `preview_*` tools are available (Claude Code Desktop), Preview manages the dev servers automatically — you do not need to start or stop them manually. Use `preview_screenshot`, `preview_click`, and `preview_snapshot` for quick visual checks during development. Reserve Playwright (via the **webapp-testing** skill) for comprehensive E2E test suites.
 
+### Windows: Preview + mise
+
+On Windows, Preview spawns child processes via Node.js (`child_process.spawn()`), not through the user's shell. When tools (Go, Node, etc.) are managed by **mise** and activated in `~/.bash_profile`, Preview cannot find them because its minimal PATH does not include mise shims and its default `bash` resolves to a system bash (possibly WSL or MSYS), not **Git Bash** (MINGW64) where mise is activated.
+
+The fix is to point `runtimeExecutable` in `.claude/launch.json` to the **full path of Git Bash** with the `-l` (login) flag so it sources `~/.bash_profile`:
+
+```json
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": ["-l", "-c", "cd backend && DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable' go run ./cmd/server"],
+      "port": 8080
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "runtimeArgs": ["-l", "-c", "cd frontend && npm install && npm run dev"],
+      "port": 5173
+    }
+  ]
+}
+```
+
+**Why this works:** `C:\Program Files\Git\bin\bash.exe` is **Git Bash** (MINGW64) — the shell where the user's `~/.bash_profile` activates mise via `eval "$(mise activate bash --shims)"`. The `-l` flag makes it a login shell so the profile is sourced. Without the full path, Preview resolves to a system bash that lacks mise and all dev tools.
+
+**Detection:** When the platform is Windows (check via `uname` or environment), always generate `.claude/launch.json` using the Git Bash path pattern above. On macOS/Linux the default `bash -c` invocation works fine.
+
 ## Local Development Feedback Loop
 
 > **Preview mode:** If you have access to `preview_*` tools (Claude Code Desktop), Preview manages the dev servers — **do not start them manually**. Use `preview_screenshot`, `preview_snapshot`, and `preview_click` for visual verification instead of Playwright for quick checks. Use Playwright (via the **webapp-testing** skill) for comprehensive E2E test suites.
