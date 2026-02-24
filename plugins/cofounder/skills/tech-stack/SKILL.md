@@ -126,6 +126,8 @@ Multi-stage: (1) build frontend with Node, (2) build Go binary, (3) minimal Alpi
 
 All tools are on PATH via **mise** (set up by **computer-setup**). The database runs as a `supabase/postgres` container via **podman** (also set up by **computer-setup**), matching the production image.
 
+> **Container naming convention:** Each project's database container is named `<repo_name>-db` (e.g., `myapp-db`), where `<repo_name>` is the basename of the project's root directory. This prevents collisions when multiple cofounder projects coexist on the same machine. Derive the name once at the start of the session and use it consistently for all `podman` commands.
+
 > **Critical: `go.mod` lives in `backend/`, not in the project root.** All Go and sqlc commands (`go run`, `go build`, `go test`, `go mod tidy`, `sqlc generate`) **must** execute from the `backend/` directory. Always include `cd backend &&` inside the `bash -c` string. When a command chain involves multiple layers of shell invocation (bash → go), prefer writing a small helper script instead of nesting everything in a single `bash -c` string — this avoids the most common source of repeated build failures.
 
 ### Project tool versions
@@ -140,17 +142,33 @@ This creates a `mise.toml` that is committed to the repo, ensuring all developer
 
 ### 1. Start the database
 
+Before starting the container, check for port conflicts from other projects:
+
 ```bash
+# Check if another container is already using port 5432
+podman ps --filter "publish=5432" --format "{{.Names}}"
+```
+
+If a container from **another project** is occupying port 5432, do **not** force-stop it. Instead, inform the user:
+
+> "The container `<other_name>` from another project is currently using port 5432. Could you please stop it with `podman stop <other_name>` so we can start this project's database?"
+
+Wait for the user to confirm before proceeding.
+
+```bash
+# Derive the container name from the repo directory
+CONTAINER_NAME="$(basename "$(pwd)")-db"
+
 # Start supabase/postgres container (matching production image)
 # Important: provide only the POSTGRES_PASSWORD environment variable. The database is started with both user and database name preset to `postgres`.
 podman run -d \
-  --name supabase-postgres \
+  --name "$CONTAINER_NAME" \
   -e POSTGRES_PASSWORD=postgres \
   -p 5432:5432 \
   supabase/postgres:17.6.1.084
 
 # Verify it's ready (uses container exec instead of pg_isready)
-podman exec supabase-postgres pg_isready -U postgres
+podman exec "$CONTAINER_NAME" pg_isready -U postgres
 ```
 
 ### 2. Start the Go API (terminal 1)
@@ -170,7 +188,8 @@ Access the app at `http://localhost:5173` during development. Vite proxies `/api
 ### Stopping the database
 
 ```bash
-podman stop supabase-postgres && podman rm supabase-postgres
+CONTAINER_NAME="$(basename "$(pwd)")-db"
+podman stop "$CONTAINER_NAME" && podman rm "$CONTAINER_NAME"
 ```
 
 ## Preview (Claude Code Desktop)
@@ -234,7 +253,7 @@ Use the **webapp-testing** skill for Playwright-based end-to-end testing. The `w
 
 ```bash
 python skills/webapp-testing/scripts/with_server.py \
-  --server "podman start supabase-postgres || true" --port 5432 \
+  --server "podman start $(basename $(pwd))-db || true" --port 5432 \
   --server "cd backend && DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable' go run ./cmd/server" --port 8080 \
   --server "cd frontend && npm run dev" --port 5173 \
   -- python test_script.py
