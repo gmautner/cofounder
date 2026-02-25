@@ -24,7 +24,7 @@ A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that acts
 
 1. Install [Claude Desktop](https://claude.com/download) (recommended) or [Claude Code](https://code.claude.com/docs/en/overview) (command line).
 
-2. Install Git: Claude Code Desktop will display a message with a link to install Git for Windows. Follow the link and accept all defaults (the famous Next/Next/.../Finish).
+2. Install Git: in Claude Desktop, select the **Code** tab (**Control+3**) — it will display a message with a link to install Git for Windows. Follow the link and accept all defaults (the famous Next/Next/.../Finish).
 
 3. Enable WSL2 (Windows Subsystem for Linux):
    1. Open **PowerShell as Administrator**
