@@ -36,15 +36,25 @@ uname -s 2>/dev/null || echo Windows
 
 ### 1. Install Homebrew
 
-Run the bundled script:
+First check whether Homebrew is already installed:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/computer-setup/scripts/homebrew-install.sh
+command -v brew
 ```
 
-The script checks if Homebrew is already installed, installs it via .pkg if
-not, sets up PATH, and verifies the installation. It prints
-`HOMEBREW_INSTALL_PASSED` on success.
+If `brew` is found, skip to the next step.
+
+If not found, extract the install command from https://brew.sh/ using the
+WebFetch tool, then tell the user to open their **Terminal app** (not Claude)
+and run that command there — it requires `sudo` which is not available inside
+Claude. Ask the user to come back and confirm once the installation finishes.
+
+After the user confirms, verify:
+
+```bash
+eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null || true)"
+brew --version
+```
 
 ### 2. Install and set up Podman
 
@@ -295,5 +305,4 @@ Add `"autoUpdate": true` as the last field in that object:
 
 ### Scripts
 
-- **`scripts/homebrew-install.sh`** — Mac-only: checks for Homebrew, installs via .pkg if missing, sets up PATH. Prints `HOMEBREW_INSTALL_PASSED`.
 - **`scripts/podman-setup.sh`** — Mac-only: initializes podman machine (memory-aware), starts it, runs nginx connectivity test. Prints `PODMAN_SETUP_PASSED` or `PODMAN_SETUP_FAILED`.
