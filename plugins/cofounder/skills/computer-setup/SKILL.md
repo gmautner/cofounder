@@ -249,14 +249,16 @@ is platform-independent and runs on both macOS and Windows.
 
 ### 1. Retrieve the marketplace name
 
-Read the marketplace manifest to get the `name` field:
+The `${CLAUDE_PLUGIN_ROOT}` path follows the structure
+`~/.claude/plugins/cache/<marketplace-name>/<plugin-name>/<version>/`. Extract
+the marketplace name from the path by taking the segment two levels above
+`${CLAUDE_PLUGIN_ROOT}` — i.e. the grandparent directory's basename:
 
 ```bash
-cat ${CLAUDE_PLUGIN_ROOT}/../../.claude-plugin/marketplace.json
+basename "$(dirname "$(dirname "${CLAUDE_PLUGIN_ROOT}")")"
 ```
 
-Parse the JSON output and extract the value of the `name` key. Store it for the
-next step — referred to below as `<marketplace-name>`.
+Store the result for the next step — referred to below as `<marketplace-name>`.
 
 ### 2. Enable auto-update
 
