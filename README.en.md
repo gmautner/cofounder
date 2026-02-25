@@ -1,74 +1,51 @@
-# Cofounder
+# Marketplace
 
-A [Claude Code](https://docs.anthropic.com/en/docs/claude-code) plugin that acts as your co-founder — guiding you from idea to deployed web app, even if you've never written a line of code.
+A plugin marketplace for [Claude Code](https://code.claude.com/docs/en/overview).
 
-[Clique aqui para a versao em Portugues](README.md)
-
-## What it does
-
-Cofounder is an AI-powered co-founder that helps you:
-
-- **Describe your idea** in plain language and get a structured Product Requirements Document
-- **Build a full-stack web app** (Go + React + PostgreSQL) with guided development
-- **Test your app** with automated end-to-end testing via Playwright
-- **Deploy to the cloud** on Locaweb Cloud with GitHub Actions CI/CD
-
-It handles environment setup, dependency management, Git/GitHub workflows, database containers, and deployment — explaining everything in accessible language along the way.
+[Clique aqui para a versão em Português](README.md)
 
 ## Requirements
 
-- macOS or Linux (WSL2 supported on Windows)
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed and configured
+### macOS
+
+1. Open Terminal and run:
+
+   ```
+   xcode-select --install
+   ```
+
+   This installs Git and other required command-line tools.
+
+2. Install Claude:
+   - [Claude Code Desktop](https://code.claude.com/docs/en/desktop-quickstart) (recommended) — or
+   - [Claude Code](https://code.claude.com/docs/en/overview) (command line)
+
+### Windows
+
+1. Install [Claude Code Desktop](https://code.claude.com/docs/en/desktop-quickstart) (recommended) or [Claude Code](https://code.claude.com/docs/en/overview) (command line).
+
+2. Install Git: Claude Code Desktop will display a message with a link to install Git for Windows. Follow the link and accept all defaults (the famous Next/Next/.../Finish).
+
+3. Enable WSL2 (Windows Subsystem for Linux):
+   1. Open **PowerShell as Administrator**
+   2. Run `wsl --install`
+   3. Reboot the computer
+
+   After rebooting, run `wsl --status` and verify it shows "Default Version: 2". A second `wsl --install` run may be needed in some cases.
 
 ## Installation
 
-Add the marketplace and install the plugin:
+<!-- [TODO] Add Claude Code Desktop installation instructions -->
 
 ```
 /plugin marketplace add gmautner/marketplace
-/plugin install cofounder
 ```
 
-## Usage
+## Available plugins
 
-Once installed, create a new project directory and start Claude Code:
-
-```bash
-mkdir my-app && cd my-app
-claude
-```
-
-The cofounder agent activates automatically. It will:
-
-1. Set up your development environment (devbox, podman, GitHub repo)
-2. Ask what you want to build
-3. Create a PRD, generate tasks, and start building
-4. Guide you through testing and deployment
-
-Just describe what you want in your own words — no technical knowledge required.
-
-## Skills included
-
-| Skill | Purpose |
-|-------|---------|
-| `pre-flight-check` | Validates environment prerequisites |
-| `devbox-setup` | Isolated, reproducible dev environment via Nix |
-| `podman-setup` | Container runtime for local databases |
-| `repo-setup` | Git + GitHub repository initialization |
-| `github-account` | Guides GitHub account creation |
-| `tech-stack` | Full-stack app development (Go, React, PostgreSQL) |
-| `frontend-design` | Distinctive UI/UX design guidance |
-| `webapp-testing` | Playwright-based end-to-end testing |
-| `locaweb-cloud-deploy` | Deploy to Locaweb Cloud infrastructure |
-
-## Tech stack
-
-Applications built with this plugin use:
-
-- **Backend:** Go stdlib (`net/http`), `pgx/v5`, `sqlc`
-- **Frontend:** Vite + React + TypeScript, shadcn/ui, Tailwind CSS
-- **Database:** PostgreSQL (via Supabase Postgres image with extensions)
-- **Deployment:** Single Docker container, GitHub Actions CI/CD
+| Plugin | Description |
+|--------|-------------|
+| [cofounder](plugins/cofounder/) | An AI-powered co-founder that guides you from idea to deployed web app. See the [plugin documentation](plugins/cofounder/) for installation and usage instructions. |
 
 ## License
 
