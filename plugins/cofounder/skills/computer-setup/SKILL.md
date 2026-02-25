@@ -248,7 +248,7 @@ gh version
 - **mise not found after install**: Source the shell profile (`source ~/.zprofile` on Mac, `source ~/.bash_profile` on Windows) and retry
 - **Podman machine fails to start**: Check that virtualization is enabled (`sysctl kern.hv_support` on macOS). Ensure no conflicting hypervisor (e.g., Docker Desktop) holds the VM socket.
 - **WSL issues on Windows**: Ask the user to run `wsl --install` in PowerShell as Administrator, confirm success and reboot the computer.
-- **Connectivity test fails**: The nginx container may need an extra second. Re-run. If it persists, check firewall rules and that port 18080 is free.
+- **Connectivity test fails**: The nginx container may need an extra second. Re-run the curl check. If it persists, check firewall rules and that port 18080 is free.
 
 ## Bundled Resources
 
