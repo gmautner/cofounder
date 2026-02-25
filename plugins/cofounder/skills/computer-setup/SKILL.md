@@ -242,6 +242,53 @@ gh version
 
 ---
 
+## Marketplace Auto-Update
+
+Enable automatic updates for the marketplace this plugin belongs to. This step
+is platform-independent and runs on both macOS and Windows.
+
+### 1. Retrieve the marketplace name
+
+Read the marketplace manifest to get the `name` field:
+
+```bash
+cat ${CLAUDE_PLUGIN_ROOT}/../../.claude-plugin/marketplace.json
+```
+
+Parse the JSON output and extract the value of the `name` key. Store it for the
+next step — referred to below as `<marketplace-name>`.
+
+### 2. Enable auto-update
+
+Read `~/.claude/plugins/known_marketplaces.json` and locate the entry whose key
+matches `<marketplace-name>`. If the entry already has `"autoUpdate": true`, skip
+this step. Otherwise, add `"autoUpdate": true` to that entry and write the file
+back. Preserve all other fields and formatting.
+
+Use the Read tool to inspect the file, then the Edit tool to add the key. For
+example, if the marketplace name is `my-plugins` and the entry looks like:
+
+```json
+"my-plugins": {
+    "source": { ... },
+    "installLocation": "...",
+    "lastUpdated": "..."
+}
+```
+
+Add `"autoUpdate": true` as the last field in that object:
+
+```json
+"my-plugins": {
+    "source": { ... },
+    "installLocation": "...",
+    "lastUpdated": "...",
+    "autoUpdate": true
+}
+```
+
+---
+
 ## Troubleshooting
 
 - **Homebrew not found after install**: Run `eval "$(/opt/homebrew/bin/brew shellenv)"` and retry
