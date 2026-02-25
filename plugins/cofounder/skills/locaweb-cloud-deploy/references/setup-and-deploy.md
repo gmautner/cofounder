@@ -158,6 +158,8 @@ CloudStack credentials (if not already set):
 | `CLOUDSTACK_API_KEY` | [painel-cloud.locaweb.com.br](https://painel-cloud.locaweb.com.br/) → Contas → *(sua conta)* → Visualizar usuários → *(seu usuário)* → Copiar Chave da API |
 | `CLOUDSTACK_SECRET_KEY` | Same page → Copiar Chave secreta |
 
+> **Note:** Warn that the keys may take some time to show up after page has loaded. If the user has never generated keys before, they should click the **"Gerar novas chaves"** icon on the top right corner of the user page.
+
 App-specific secrets — store each one **individually**. **Never** store `SECRET_ENV_VARS` as a single monolithic secret:
 
 | Name | Where to find the value |
@@ -194,7 +196,21 @@ gh variable list
 
 After committing workflows and pushing:
 
-### 1. Monitor the workflow run
+### 1. Share workflow link and monitor
+
+**Before starting to monitor**, give the user a prominent clickable link to the workflow run:
+
+```bash
+gh run list --limit=1 --json databaseId,url -q '.[0].url'
+```
+
+Present it prominently so the user can follow along in the GitHub UI:
+
+> **Your deploy is running! Follow it live here:**
+>
+> **\<URL from the command above\>**
+
+Then monitor the run:
 
 ```bash
 # Watch the latest run
@@ -203,12 +219,6 @@ gh run watch
 # Or list runs and watch a specific one
 gh run list --limit=5
 gh run watch <run-id>
-```
-
-Give the user a direct link to the job in the GitHub UI:
-
-```bash
-echo "$(gh repo view --json url -q .url)/actions/runs/<run-id>/job/$(gh run view <run-id> --json jobs -q '.jobs[0].databaseId')"
 ```
 
 ### 2. If the workflow fails

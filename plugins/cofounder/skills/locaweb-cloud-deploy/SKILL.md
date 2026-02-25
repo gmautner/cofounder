@@ -80,8 +80,17 @@ Follow these steps in order. Each step is idempotent -- safe to re-run across ag
 ### Step 4: Collect CloudStack credentials
 
 - Check if `CLOUDSTACK_API_KEY` and `CLOUDSTACK_SECRET_KEY` are already set in the repo (`gh secret list`)
-- If not set: ask the user to set them via the GitHub UI (see [references/setup-and-deploy.md](references/setup-and-deploy.md#secrets-the-user-must-set-via-github-ui)). **Never** accept secret values through the chat — they would be stored in conversation history
+- If not set: ask the user to set them via the GitHub UI. **Never** accept secret values through the chat — they would be stored in conversation history
 - If the user doesn't have a Locaweb Cloud account yet, recommend they go to https://www.locaweb.com.br/locaweb-cloud/ and look for the "Contratar" button to sign up
+
+Tell the user where to find their API keys:
+
+| Name | Where to find the value |
+|------|------------------------|
+| `CLOUDSTACK_API_KEY` | [painel-cloud.locaweb.com.br](https://painel-cloud.locaweb.com.br/) → Contas → *(sua conta)* → Visualizar usuários → *(seu usuário)* → Copiar Chave da API |
+| `CLOUDSTACK_SECRET_KEY` | Same page → Copiar Chave secreta |
+
+> **Note:** Warn that the keys may take some time to show up after page has loaded. If the user has never generated keys before, they should click the **"Gerar novas chaves"** icon on the top right corner of the user page.
 
 ### Step 5: Set up Postgres credentials
 
@@ -158,7 +167,14 @@ After setup is complete, use this loop to deploy and verify the application. See
 
 ### Workflow monitoring
 
-- After push, follow the GitHub Actions workflow run
+- After push, **before starting to monitor**, give the user a prominent clickable link to the workflow run so they can follow along in the GitHub UI:
+
+  > **Your deploy is running! Follow it live here:**
+  >
+  > **\<workflow run URL\>**
+
+  Get the URL with `gh run list --limit=1 --json databaseId,url -q '.[0].url'`
+- Then monitor the run with `gh run watch`
 - If the workflow fails: read the error from the run logs, fix the issue, commit/push, repeat
 - Continue until the workflow succeeds
 

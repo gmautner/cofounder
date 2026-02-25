@@ -60,12 +60,6 @@ brew install podman
 
 This is a no-op if podman is already installed.
 
-> **Rosetta prompt:** After `brew install podman` finishes, a system window may
-> appear asking to install Rosetta. Tell the user to look for it on their
-> Desktop (it may be hidden behind other windows) and press **Install** to
-> proceed. Claude cannot interact with this window — the user must do it
-> themselves. Wait for the user to confirm before continuing.
-
 #### 3. Install and activate mise
 
 ```bash
@@ -114,6 +108,12 @@ podman machine init
 ```
 
 Add `--memory 1024` if the computer has less than 16 GB of RAM. Then:
+
+> **Rosetta prompt:** During `podman machine start`, a system
+> window may appear asking to install Rosetta. Before the command is executed, tell the user to look for it on
+> their Desktop (it may be hidden behind other windows) and press **Install** to
+> proceed. Claude cannot interact with this window — the user must do it
+> themselves. Wait for the user to confirm before continuing.
 
 ```bash
 podman machine start
