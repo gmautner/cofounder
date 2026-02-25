@@ -70,7 +70,7 @@ This is a no-op if mise is already installed. Then ensure mise is activated in
 the user's shell profile:
 
 ```bash
-grep -q 'mise activate' ~/.zshrc || echo 'eval "$(mise activate zsh --shims)"' >> ~/.zshrc
+grep -q 'mise activate' ~/.zprofile || echo 'eval "$(mise activate zsh --shims)"' >> ~/.zprofile
 ```
 
 #### 4. Install GH CLI
@@ -185,21 +185,23 @@ If not installed:
 winget install --exact --id RedHat.Podman --accept-source-agreements --accept-package-agreements
 ```
 
-### 3. Check Scoop
+### 3. Install mise
 
 ```bash
-scoop --version
+mise version
 ```
 
-If not installed, run in PowerShell:
+If not installed:
 
-```powershell
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-Invoke-RestMethod -Uri https://get.scoop.sh | Invoke-Expression
+```bash
+winget install --exact --id jdx.mise --accept-source-agreements --accept-package-agreements
 ```
 
-> Scoop is preferred over winget for mise because it handles PATH setup better
-> in git bash, which is Claude Code Desktop's shell environment.
+Then ensure mise is activated in the user's shell profile:
+
+```bash
+grep -q 'mise activate' ~/.bash_profile || echo 'eval "$(mise activate bash --shims)"' >> ~/.bash_profile
+```
 
 ### 4. Check GH CLI
 
@@ -216,8 +218,7 @@ winget install --exact --id GitHub.cli
 ### 5. Restart check
 
 **If any of steps 2-4 performed an install**, ask the user to restart Claude
-(File > Exit on top left). Otherwise continue — this is the key to minimizing
-restarts.
+(File > Exit on top left). Otherwise continue — this is the key to minimizing restarts.
 
 ### 6. Set up Podman machine
 
@@ -258,29 +259,13 @@ Expect `200`. Clean up:
 podman rm -f podman-setup-test-nginx
 ```
 
-### 7. Install and activate mise
-
-```bash
-scoop install mise
-```
-
-This is a no-op if mise is already installed. Then ensure mise is activated in
-the user's shell profile:
-
-```bash
-grep -q 'mise activate' ~/.bash_profile || echo 'eval "$(mise activate bash --shims)"' >> ~/.bash_profile
-```
-
-### 8. Verify mise works
-
-**Run this in a separate command** so the new shell picks up shims from
-`~/.bash_profile`:
+### 7. Verify mise works
 
 ```bash
 mkdir -p ~/test1 && cd ~/test1 && mise use node@24 && node --version && rm -rf ~/test1
 ```
 
-### 9. Verify GH CLI
+### 8. Verify GH CLI
 
 ```bash
 gh version
