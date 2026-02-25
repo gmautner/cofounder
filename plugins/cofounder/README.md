@@ -6,7 +6,32 @@ Um plugin para o [Claude Code](https://docs.anthropic.com/en/docs/claude-code) q
 
 ## Antes de começar
 
-Verifique se seu computador atende aos [requisitos de instalação](../../README.md#requisitos) antes de prosseguir.
+### macOS
+
+1. Abra o Terminal e execute:
+
+   ```
+   xcode-select --install
+   ```
+
+   Isso instala o Git e outras ferramentas de linha de comando necessárias.
+
+2. Instale o Claude:
+   - [Claude Desktop](https://claude.com/download) (recomendado) — ou
+   - [Claude Code](https://code.claude.com/docs/pt/overview) (linha de comando)
+
+### Windows
+
+1. Instale o [Claude Desktop](https://claude.com/download) (recomendado) ou o [Claude Code](https://code.claude.com/docs/pt/overview) (linha de comando).
+
+2. Instale o Git: o Claude Code Desktop exibirá uma mensagem com um link para instalação do Git para Windows. Siga o link e aceite todas as opções padrão (o famoso Next/Next/.../Finish).
+
+3. Habilite o WSL2 (Windows Subsystem for Linux):
+   1. Abra o **PowerShell como Administrador**
+   2. Execute `wsl --install`
+   3. Reinicie o computador
+
+   Após reiniciar, execute `wsl --status` e verifique se aparece "Default Version: 2". Em alguns casos pode ser necessário repetir o comando `wsl --install` e reiniciar o computador mais de uma vez.
 
 ## O que ele faz
 
@@ -21,6 +46,22 @@ Ele cuida da configuração do ambiente, gerenciamento de dependências, fluxos 
 
 ## Instalação
 
+### 🧑‍💻 Claude Desktop
+
+1. Escolha o seletor Code (Command+3)
+2. Abra a barra lateral
+3. Clique em **Customize**
+4. Clique em **Browse plugins**
+5. Vá até a aba **Personal**
+6. Clique em **+**
+7. Selecione **Add marketplace from GitHub**
+8. Cole a URL: `gmautner/marketplace`
+9. Clique em **Sync**
+10. Clique em **Cofounder**
+11. Clique em **Install**
+
+### ⌨️ Claude Code
+
 Adicione o marketplace e instale o plugin:
 
 ```
@@ -30,7 +71,21 @@ Adicione o marketplace e instale o plugin:
 
 ## Como usar
 
-Após a instalação, crie um novo diretório para o projeto e inicie o Claude Code:
+### 🧑‍💻 Claude Desktop
+
+1. Escolha o seletor Code (Command+3)
+2. Abra a barra lateral
+3. Clique em **(+) New Session**
+4. Clique na pasta abaixo da caixa de chat
+5. Selecione **Choose a different folder**
+6. Clique em **New Folder**
+7. Escolha um nome para o projeto
+8. Clique em **Open**
+9. Na caixa de chat, digite `/cofounder:install`
+
+### ⌨️ Claude Code
+
+Crie um novo diretório para o projeto e inicie o Claude Code:
 
 ```bash
 mkdir meu-app && cd meu-app
@@ -42,6 +97,10 @@ Ative o cofounder no projeto:
 ```
 /cofounder:install
 ```
+
+## Demo
+
+![Instalação e uso do Cofounder no Claude Desktop](demo.webp)
 
 Isso configura o agente cofounder como thread principal do projeto. A partir daí, toda sessão do Claude Code nesse projeto inicia automaticamente com o cofounder gerenciando seu ambiente, requisitos e fluxo de desenvolvimento.
 
