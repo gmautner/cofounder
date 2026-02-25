@@ -34,7 +34,9 @@ uname -s 2>/dev/null || echo Windows
 
 ## macOS
 
-### 1. Install Homebrew
+### Phase 1 — Install tools
+
+#### 1. Install Homebrew
 
 First check whether Homebrew is already installed:
 
@@ -49,31 +51,22 @@ WebFetch tool, then tell the user to open their **Terminal app** (not Claude)
 and run that command there — it requires `sudo` which is not available inside
 Claude. Ask the user to come back and confirm once the installation finishes.
 
-After the user confirms, verify:
+#### 2. Install Podman
 
 ```bash
 eval "$(/opt/homebrew/bin/brew shellenv 2>/dev/null || /usr/local/bin/brew shellenv 2>/dev/null || true)"
-brew --version
-```
-
-### 2. Install and set up Podman
-
-```bash
 brew install podman
 ```
 
-This is a no-op if podman is already installed. Then run the bundled setup
-script:
+This is a no-op if podman is already installed.
 
-```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/computer-setup/scripts/podman-setup.sh
-```
+> **Rosetta prompt:** After `brew install podman` finishes, a system window may
+> appear asking to install Rosetta. Tell the user to look for it on their
+> Desktop (it may be hidden behind other windows) and press **Install** to
+> proceed. Claude cannot interact with this window — the user must do it
+> themselves. Wait for the user to confirm before continuing.
 
-The script initializes the podman machine (with memory-aware defaults), starts
-it, and runs an nginx connectivity test. It prints `PODMAN_SETUP_PASSED` on
-success.
-
-### 3. Install and activate mise
+#### 3. Install and activate mise
 
 ```bash
 brew install mise
@@ -83,31 +76,74 @@ This is a no-op if mise is already installed. Then ensure mise is activated in
 the user's shell profile:
 
 ```bash
-grep -q 'mise activate' ~/.zprofile || echo 'eval "$(mise activate zsh --shims)"' >> ~/.zprofile
+grep -q 'mise activate' ~/.zshrc || echo 'eval "$(mise activate zsh --shims)"' >> ~/.zshrc
 ```
 
-### 4. Verify mise works
-
-**Run this in a separate command** so the new shell picks up shims from
-`~/.zprofile`:
-
-```bash
-mkdir -p ~/test1 && cd ~/test1 && mise use node@24 && node --version && rm -rf ~/test1
-```
-
-If `mise` is not found, source the profile first:
-
-```bash
-source ~/.zprofile
-```
-
-### 5. Install GH CLI
+#### 4. Install GH CLI
 
 ```bash
 brew install gh
 ```
 
-This is a no-op if gh is already installed. Verify:
+This is a no-op if gh is already installed.
+
+#### 5. Restart Claude
+
+**If any of steps 1-4 performed an install**, ask the user to restart Claude
+so the new PATH takes effect. Otherwise skip to Phase 2.
+
+### Phase 2 — Verify and set up (after restart)
+
+#### 6. Verify Homebrew
+
+```bash
+brew --version
+```
+
+#### 7. Set up Podman machine
+
+```bash
+podman version
+```
+
+Interpret the output. If it shows client and server versions, podman is ready.
+If it errors about needing a Linux VM:
+
+```bash
+podman machine init
+```
+
+Add `--memory 1024` if the computer has less than 16 GB of RAM. Then:
+
+```bash
+podman machine start
+```
+
+Run connectivity test:
+
+```bash
+podman run -d --name podman-setup-test-nginx -p 18080:80 docker.io/library/nginx:alpine
+```
+
+Wait a few seconds, then:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}' http://localhost:18080/
+```
+
+Expect `200`. Clean up:
+
+```bash
+podman rm -f podman-setup-test-nginx
+```
+
+#### 8. Verify mise works
+
+```bash
+mkdir -p ~/test1 && cd ~/test1 && mise use node@24 && node --version && rm -rf ~/test1
+```
+
+#### 9. Verify GH CLI
 
 ```bash
 gh version
@@ -295,14 +331,11 @@ Add `"autoUpdate": true` as the last field in that object:
 
 ## Troubleshooting
 
-- **Homebrew not found after install**: Run `eval "$(/opt/homebrew/bin/brew shellenv)"` and retry
-- **mise not found after install**: Source the shell profile (`source ~/.zprofile` on Mac, `source ~/.bash_profile` on Windows) and retry
+- **Homebrew/mise/podman not found after install**: Restart Claude so the new PATH takes effect
 - **Podman machine fails to start**: Check that virtualization is enabled (`sysctl kern.hv_support` on macOS). Ensure no conflicting hypervisor (e.g., Docker Desktop) holds the VM socket.
 - **WSL issues on Windows**: Ask the user to run `wsl --install` in PowerShell as Administrator, confirm success and reboot the computer.
 - **Connectivity test fails**: The nginx container may need an extra second. Re-run the curl check. If it persists, check firewall rules and that port 18080 is free.
 
 ## Bundled Resources
 
-### Scripts
-
-- **`scripts/podman-setup.sh`** — Mac-only: initializes podman machine (memory-aware), starts it, runs nginx connectivity test. Prints `PODMAN_SETUP_PASSED` or `PODMAN_SETUP_FAILED`.
+None — all steps are performed inline.

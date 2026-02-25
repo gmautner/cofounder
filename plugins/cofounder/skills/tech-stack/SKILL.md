@@ -142,14 +142,9 @@ This creates a `mise.toml` that is committed to the repo, ensuring all developer
 
 ### 1. Start the database
 
-Before starting the container, check for port conflicts from other projects:
-
-```bash
-# Check if another container is already using port 5432
-podman ps --filter "publish=5432" --format "{{.Names}}"
-```
-
-If a container from **another project** is occupying port 5432, do **not** force-stop it. Instead, inform the user:
+Before starting the container, check if any podman container is already using
+port 5432. If a container from **another project** is occupying the port, do
+**not** force-stop it. Instead, inform the user:
 
 > "The container `<other_name>` from another project is currently using port 5432. Could you please stop it with `podman stop <other_name>` so we can start this project's database?"
 
