@@ -197,6 +197,17 @@ When the user chooses to deploy:
    >
    > **https://your-app-preview.example.com**
 
+6. **When the user asks for a custom domain:** Follow the locaweb-cloud-deploy skill's "Choosing the Target Environment for a Domain" section. **Never skip this decision** — always present the options, even if only one environment exists. Explain in plain language:
+
+   > "Right now your app runs on the Preview environment. When you add a domain, you have two choices:
+   >
+   > 1. **Point the domain to Preview** — your app goes live right away, and every change you make is instantly public.
+   > 2. **Create a Production environment** — Preview stays as a staging area, and only approved changes go live under your domain. This is safer, especially if you don't have a local setup to test on your computer.
+   >
+   > You can always change this later, so there's no wrong choice to start with."
+
+   Then proceed with the locaweb-cloud-deploy skill to execute the chosen option.
+
 ---
 
 ## Skill Reference

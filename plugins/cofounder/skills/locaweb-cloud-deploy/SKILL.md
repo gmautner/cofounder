@@ -245,6 +245,27 @@ After a deploy workflow completes, extract information from:
 - **No domain (preview)**: `http://<web_ip>.nip.io` -- works immediately, no DNS needed, no HTTPS
 - **With domain**: `https://<domain>` -- requires DNS A record pointing to `web_ip`, automatic SSL via Let's Encrypt
 
+### Choosing the Target Environment for a Domain
+
+When the user asks to configure a custom domain, determine which environment should receive it. **Always ask** — do not default to the only existing environment without confirming.
+
+Explain the options in the user's language, using these concepts:
+
+- **Local dev environment**: Runs on the user's own computer. Not visible to anyone else. Good for iterating on new features and bug fixes quickly.
+- **Preview environment**: Runs on the cloud. Visible to anyone with the URL. Typically triggered on every push to the main branch. Good for quick iteration and sharing with testers. If a domain is tied here, every push goes live immediately.
+- **Production environment**: A separate cloud environment, typically triggered on version tags (`v*`). Changes are staged in preview first and only promoted to production when a tag is created. Tie the domain here for a controlled release process.
+
+**Decision point:** If the user has no production environment, ask them:
+
+1. **Tie the domain to Preview** — for immediate release. Every push goes live. Simple, fast, good for getting started.
+2. **Create a Production environment first** — for a controlled release process. Preview becomes a staging area; production gets the domain.
+
+Mention that this can be changed later (e.g., moving the domain from preview to production, or adding a new domain to production), so there is no wrong choice to start with.
+
+If a local development environment is not available (the user cannot run the app locally), recommend option 2 more strongly: without local dev, preview is the only place to catch issues before they go live, so it's valuable to keep it as a staging area separate from the public-facing production environment.
+
+Once the user decides, proceed with [DNS Configuration](#dns-configuration-for-custom-domains) for the chosen environment. If a production environment is needed but doesn't exist yet, create it first following [Step 8](#step-8-add-additional-environments-when-ready).
+
 ### DNS Configuration for Custom Domains
 
 The web VM's public IP is not known until the first deployment completes. To set up a custom domain:
@@ -279,7 +300,7 @@ When the developer cannot run the language runtime or database locally, the Depl
 3. Run the health check (`curl /up`) to verify
 4. If the health check fails, SSH debug, fix, and repeat from step 1
 
-**Recommendation**: Start with the default `preview` environment triggered on push, without a domain. This gives immediate feedback on every change, with no DNS configuration needed during development. When the app is mature, add additional environments (e.g., `production` with a custom domain, triggered on version tags).
+**Recommendation**: Start with the default `preview` environment triggered on push, without a domain. This gives immediate feedback on every change, with no DNS configuration needed during development. When the app is mature, consider adding a **production** environment (triggered on version tags) for public release — especially important when no local dev environment is available, since preview is the only place to catch issues before they reach users. See [Choosing the Target Environment for a Domain](#choosing-the-target-environment-for-a-domain) for guidance on where to attach a custom domain.
 
 ## References
 
