@@ -1,6 +1,6 @@
 ---
 name: tech-stack
-description: Go + React full-stack architecture with iterative local development. Use this skill when scaffolding a new app, adding features, fixing bugs, or running the local dev loop. Covers project layout, database migrations, sqlc code generation, local Supabase/Postgres via Podman, and the write-test-repeat feedback cycle.
+description: Go + React full-stack architecture with iterative local development. Use this skill when scaffolding a new app, adding features, fixing bugs, or running the local dev loop. Covers project layout, database migrations, sqlc code generation, local Supabase/Postgres via Podman, Postgres extensions (pgmq, pg_cron, pgroonga, pgvector, pg_jsonschema, LISTEN/NOTIFY), and the write-test-repeat feedback cycle.
 ---
 
 # Tech Stack
@@ -68,14 +68,18 @@ The Go server handles everything: API routes under `/api/`, static assets under 
 ### Database only — no Redis, no external caches, no message queues
 
 PostgreSQL is the only external service. Use Postgres-backed alternatives for everything:
-- **Queues:** `pgmq` extension or `SELECT ... FOR UPDATE SKIP LOCKED`
-- **Pub/Sub:** `LISTEN`/`NOTIFY`
+- **Queues:** `pgmq` — lightweight message queue with visibility timeout, archive, and batch operations. See [references/pgmq.md](references/pgmq.md)
+- **Pub/Sub:** `LISTEN`/`NOTIFY` — no extension needed; combine with a persistence layer for durability. See [references/notify-patterns.md](references/notify-patterns.md)
 - **Caching:** unlogged tables
-- **Scheduling:** `pg_cron` + `pg_net`
-- **Search:** `pgroonga`
-- **Vectors:** `pgvector`
+- **Scheduling:** `pg_cron` + `pg_net` — in-database cron plus async HTTP requests for triggering app endpoints on a schedule. **Do not use container-level cron.** See [references/pg-cron.md](references/pg-cron.md)
+- **Search:** `pgroonga` — full-text search for all languages including CJK, with boolean queries, ranking, highlighting, and JSONB search. No configuration needed. When the app involves searchable content (products, articles, listings, messages, logs), **proactively propose adding search**. Falls back to native `tsvector`/`tsquery` only when a simpler built-in solution suffices for a single well-supported language. See [references/pgroonga.md](references/pgroonga.md)
+- **Vectors:** `pgvector` — embeddings storage and similarity search with HNSW and IVFFlat indexes. See [references/pgvector.md](references/pgvector.md)
+- **JSON validation:** `pg_jsonschema` — validate `json`/`jsonb` columns against JSON Schema via CHECK constraints. See [references/pg-jsonschema.md](references/pg-jsonschema.md)
+- **Geospatial:** `postgis` — geometry types, spatial indexes, and geographic functions. See <https://postgis.net/>
+- **HTTP from SQL:** `pg_net` — asynchronous HTTP/HTTPS requests from SQL; used with `pg_cron` for scheduled calls or from triggers for webhooks
+- Other notable extensions: `pgjwt`, `pg_stat_statements`, `pgaudit`, `pg_hashids`
 
-All 60+ bundled extensions from `supabase/postgres` are available. See the **locaweb-cloud-deploy** skill references for extension-specific guides.
+All 60+ bundled extensions from `supabase/postgres` are available.
 
 ### sqlc for all queries
 
@@ -303,3 +307,12 @@ Then update the Go code that calls the generated functions. Never hand-write SQL
 - **No ORMs.** SQL through sqlc only.
 - **No CSS preprocessors.** Tailwind CSS only.
 - **No additional JavaScript frameworks.** React + React Router only.
+
+## Postgres Extension References
+
+- **[references/pgroonga.md](references/pgroonga.md)** -- PGroonga full-text search: operators, ranking, highlighting, CJK support
+- **[references/pgmq.md](references/pgmq.md)** -- pgmq message queue: SQL examples for send, read, archive, delete
+- **[references/pg-cron.md](references/pg-cron.md)** -- pg_cron + pg_net: scheduled jobs, HTTP triggers, common patterns
+- **[references/pgvector.md](references/pgvector.md)** -- pgvector similarity search: distance operators, HNSW/IVFFlat indexes, tuning
+- **[references/pg-jsonschema.md](references/pg-jsonschema.md)** -- pg_jsonschema validation: CHECK constraint pattern, core functions
+- **[references/notify-patterns.md](references/notify-patterns.md)** -- LISTEN/NOTIFY + persistence: pgmq for job queues, regular tables for data updates, polling fallback

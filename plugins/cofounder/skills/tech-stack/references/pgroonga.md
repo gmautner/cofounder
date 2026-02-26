@@ -102,4 +102,36 @@ SELECT * FROM docs WHERE metadata &@ 'keyword';
 
 PGroonga works well for all languages. It adds particularly strong support for CJK and other languages where `tsvector`/`tsquery` requires manual dictionary configuration or produces poor results.
 
+## sqlc Integration
+
+All SQL lives in `backend/internal/database/queries/*.sql` and is generated via `sqlc generate`. PGroonga operators (`&@`, `&@~`) work in sqlc query files like any other operator.
+
+```sql
+-- name: SearchMemos :many
+SELECT id, title, content, pgroonga_score(tableoid, ctid) AS score
+FROM memos
+WHERE content &@~ @query
+ORDER BY score DESC
+LIMIT @max_results;
+```
+
+```sql
+-- name: SearchMemosWithHighlight :many
+SELECT id, title,
+       pgroonga_highlight_html(content, pgroonga_query_extract_keywords(@query)) AS content_highlighted,
+       pgroonga_score(tableoid, ctid) AS score
+FROM memos
+WHERE content &@~ @query
+ORDER BY score DESC
+LIMIT @max_results;
+```
+
+The migration that creates the PGroonga index goes in `backend/internal/database/migrations/` alongside other migration files:
+
+```sql
+-- NNN_add_search_index.sql
+CREATE EXTENSION IF NOT EXISTS pgroonga;
+CREATE INDEX IF NOT EXISTS idx_memos_search ON memos USING pgroonga (title, content);
+```
+
 Source: <https://pgroonga.github.io/>

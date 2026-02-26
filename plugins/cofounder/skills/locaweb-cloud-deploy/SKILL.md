@@ -5,8 +5,8 @@ description: >
   deployment workflows", "create a preview environment", "add a production environment", "tear down
   an environment", "configure a custom domain", "connect to the database", "check deployment logs",
   "scale the VM", or asks about architecture decisions (monolith vs microservices, vertical vs
-  horizontal scaling), choosing Postgres-backed alternatives to Redis/Kafka/cron (pgmq, pg_cron,
-  LISTEN/NOTIFY, pgroonga, pgvector, pg_jsonschema), managing secrets and environment variables,
+  horizontal scaling), platform constraints (Postgres only, single container, port 80),
+  managing secrets and environment variables,
   Dockerfile requirements, database migrations, or performing operations and troubleshooting on
   live infrastructure (SSH access, container logs, health checks).
 ---
@@ -23,16 +23,7 @@ These constraints apply to **every** application deployed to this platform. Comm
 
 - **Single Dockerfile at repo root**, web app **must listen on port 80**
 - **Health check at `GET /up`** returning HTTP 200 when healthy
-- **Postgres only** (with 60+ bundled extensions via `supabase/postgres`): No Redis, Kafka, or other services. If the app framework expects these features, find or implement a Postgres-backed alternative using the bundled extensions:
-  - **Queues**: `pgmq` extension — lightweight message queue with visibility timeout, archive, and batch operations. See [references/pgmq.md](references/pgmq.md)
-  - **Pub/sub**: Native `LISTEN`/`NOTIFY` — no extension needed. Producers call `NOTIFY channel, 'payload'` (max 8 KB payload), consumers hold a connection with `LISTEN channel` and receive events asynchronously. Not durable on its own — messages are lost if no listener is connected. Combine with a persistence layer (`pgmq` for job queues, or a regular table for data that's already stored) so consumers can recover missed events via polling. See [references/notify-patterns.md](references/notify-patterns.md)
-  - **Scheduling**: `pg_cron` extension — in-database cron using background workers. Combine with `pg_net` to fire HTTP requests to the app on a schedule (e.g., trigger a cleanup endpoint every 5 minutes). **Do not use container-level cron** (`apt-get install cron`, crontab files) — use `pg_cron` + `pg_net` for all scheduled tasks. See [references/pg-cron.md](references/pg-cron.md)
-  - **Search**: Native full-text search (`tsvector`/`tsquery`) for well-supported languages, or `pgroonga` extension for multilingual/CJK support. See [references/pgroonga.md](references/pgroonga.md)
-  - **Vector database**: `pgvector` extension — embeddings storage and similarity search with HNSW and IVFFlat indexes. See [references/pgvector.md](references/pgvector.md)
-  - **JSON validation**: `pg_jsonschema` extension — validate `json`/`jsonb` columns against JSON Schema via CHECK constraints. See [references/pg-jsonschema.md](references/pg-jsonschema.md)
-  - **Geospatial**: `postgis` extension — geometry types, spatial indexes, and geographic functions. See <https://postgis.net/>
-  - **HTTP from SQL**: `pg_net` extension — asynchronous HTTP/HTTPS requests from SQL. Used with `pg_cron` to call app endpoints on a schedule, or from triggers to fire webhooks. See [references/pg-cron.md](references/pg-cron.md)
-  - Other notable extensions: `pgjwt`, `pg_stat_statements`, `pgaudit`, `pg_hashids`
+- **Postgres only** (with 60+ bundled extensions via `supabase/postgres`): No Redis, Kafka, or other services. If the app framework expects these features, find or implement a Postgres-backed alternative using bundled extensions (`pgmq`, `LISTEN/NOTIFY`, `pg_cron`, `pg_net`, `pgroonga`, `pgvector`, `pg_jsonschema`, `postgis`). **Do not use container-level cron** (`apt-get install cron`, crontab files) — use `pg_cron` + `pg_net` for all scheduled tasks. See the **tech-stack** skill for extension details and implementation guides.
 - **Single web VM**: No horizontal web scaling. Scale vertically with larger `web_plan`. Prefer runtimes and frameworks that scale well vertically.
 - **No TLS without a domain**: nip.io URLs are HTTP only. Use a custom domain for HTTPS.
 - **Single PostgreSQL instance**: No read replicas or multiple databases.
@@ -298,9 +289,3 @@ When the developer cannot run the language runtime or database locally, the Depl
 - **[references/env-vars.md](references/env-vars.md)** -- Environment variables and secrets configuration
 - **[references/scaling.md](references/scaling.md)** -- VM plans, worker scaling, disk sizes
 - **[references/teardown.md](references/teardown.md)** -- Teardown process, inferring parameters, reading outputs
-- **[references/notify-patterns.md](references/notify-patterns.md)** -- LISTEN/NOTIFY + persistence: pgmq for job queues, regular tables for data updates, polling fallback
-- **[references/pgmq.md](references/pgmq.md)** -- pgmq message queue: SQL examples for send, read, archive, delete
-- **[references/pg-cron.md](references/pg-cron.md)** -- pg_cron + pg_net: scheduled jobs, HTTP triggers, common patterns
-- **[references/pgroonga.md](references/pgroonga.md)** -- PGroonga full-text search: operators, ranking, highlighting, CJK support
-- **[references/pgvector.md](references/pgvector.md)** -- pgvector similarity search: distance operators, HNSW/IVFFlat indexes, tuning
-- **[references/pg-jsonschema.md](references/pg-jsonschema.md)** -- pg_jsonschema validation: CHECK constraint pattern, core functions
