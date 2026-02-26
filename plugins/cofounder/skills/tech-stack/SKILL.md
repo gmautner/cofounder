@@ -308,6 +308,20 @@ Then update the Go code that calls the generated functions. Never hand-write SQL
 - **No CSS preprocessors.** Tailwind CSS only.
 - **No additional JavaScript frameworks.** React + React Router only.
 
+## Authorization Best Practices
+
+If the application has a user login area, **self sign-in with username and password** is acceptable for quickly prototyping the app, but **never for production** — the security of this method is weak.
+
+**Recommended approach:** start with self sign-in (username + password) for prototyping, then move as soon as possible to one or both of:
+
+- **Email with magic link** — practical, doesn't require memorization. Requires configuration of an SMTP gateway. See [references/smtp-gateway.md](references/smtp-gateway.md)
+- **Google Auth** — practical, doesn't require memorization. Relies on Google's security mechanisms. Requires configuration of Google Auth (cost free). See [references/google-auth.md](references/google-auth.md)
+
+## Other References
+
+- **[references/smtp-gateway.md](references/smtp-gateway.md)** -- SMTP gateway setup: Gmail (prototyping) and Locaweb (production) for sending e-mails (reminders, auth links, notifications, etc.)
+- **[references/google-auth.md](references/google-auth.md)** -- Google Auth OAuth setup: Google Cloud Console configuration, consent screen, credentials
+
 ## Postgres Extension References
 
 - **[references/pgroonga.md](references/pgroonga.md)** -- PGroonga full-text search: operators, ranking, highlighting, CJK support
