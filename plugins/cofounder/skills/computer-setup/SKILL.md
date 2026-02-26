@@ -203,6 +203,18 @@ Then ensure mise is activated in the user's shell profile:
 grep -q 'mise activate' ~/.bash_profile || echo 'eval "$(mise activate bash --shims)"' >> ~/.bash_profile
 ```
 
+Then add the mise shims directory to the **Windows** PATH so that tools
+installed by mise are visible to Claude Code (which launches from Windows, not
+from bash):
+
+```bash
+powershell.exe -Command "[Environment]::SetEnvironmentVariable('Path', '$(cygpath -w "$LOCALAPPDATA/mise/shims")' + ';' + [Environment]::GetEnvironmentVariable('Path', 'User'), 'User')"
+```
+
+> `LOCALAPPDATA` is the default location mise uses on Windows when
+> `XDG_DATA_HOME` is not set. If in doubt, run `mise doctor` and look for the
+> `shims` entry to confirm the path.
+
 ### 4. Check GH CLI
 
 ```bash
