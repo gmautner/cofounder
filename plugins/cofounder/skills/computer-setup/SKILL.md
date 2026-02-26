@@ -84,7 +84,9 @@ This is a no-op if gh is already installed.
 #### 5. Restart Claude
 
 **If any of steps 1-4 performed an install**, ask the user to restart Claude
-so the new PATH takes effect. Otherwise skip to Phase 2.
+so the new PATH takes effect. Tell them to come back to this same chat session
+after restarting — they can find it by selecting the **Code** tab and looking
+for past sessions in the sidebar. Otherwise skip to Phase 2.
 
 ### Phase 2 — Verify and set up (after restart)
 
@@ -230,7 +232,9 @@ winget install --exact --id GitHub.cli
 ### 5. Restart check
 
 **If any of steps 2-4 performed an install**, ask the user to restart Claude
-(File > Exit on top left). Otherwise continue — this is the key to minimizing restarts.
+(File > Exit on top left). Tell them to come back to this same chat session
+after restarting — they can find it by selecting the **Code** tab and looking
+for past sessions in the sidebar. Otherwise continue — this is the key to minimizing restarts.
 
 ### 6. Set up Podman machine
 
