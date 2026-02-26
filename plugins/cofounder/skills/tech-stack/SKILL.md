@@ -43,10 +43,19 @@ Ensure the project `.gitignore` includes at least:
 frontend/dist/
 frontend/node_modules/
 .venv/
+.env
 .claude/launch.json
 ```
 
 `.claude/launch.json` is generated locally by Claude Code Desktop's Preview feature and contains platform-specific commands — it must not be committed.
+
+`.env` holds custom secrets needed to run the application (third-party API keys, OAuth client secrets, etc.). It must **never** be committed. After creating or updating it, restrict permissions:
+
+```bash
+chmod 0600 .env
+```
+
+The Go backend reads these values via `os.Getenv()`. During local development, load the file before starting the server (e.g., `set -a && source .env && set +a`). In deployed environments, secrets are injected as environment variables by the deployment platform — see the **locaweb-cloud-deploy** skill.
 
 `mise.toml` should **not** be gitignored — it is committed to the repo so all developers use the same tool versions.
 
