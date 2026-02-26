@@ -135,6 +135,14 @@ For each additional environment:
 
 After setup is complete, use this loop to deploy and verify the application. See [references/setup-and-deploy.md](references/setup-and-deploy.md) for detailed commands.
 
+> **Prerequisite:** Before entering this loop, all changes — including the workflow files created during setup and any application code — must be **committed and pushed** to the remote repository. The deploy is triggered by `git push`. If the code has not been committed and pushed yet, do that first:
+>
+> ```bash
+> git add -A && git commit -m "Add deployment workflows" && git push
+> ```
+>
+> The tech-stack skill normally handles this, but if there was a handoff gap, ensure it happens now before proceeding.
+
 ```
 ┌─────────────────────────────────────────────────┐
 │                                                 │
