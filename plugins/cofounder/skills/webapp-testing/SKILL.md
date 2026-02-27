@@ -106,6 +106,14 @@ python -m venv .venv
 .venv\Scripts\python.exe your_test.py
 ```
 
+## Authenticating in Tests
+
+Many app features are behind a login wall. Magic link and Google Auth flows cannot be completed in automated tests, so the backend provides a **dev-only login endpoint** (`POST /api/dev/login`) when running locally with `DEV_MODE=1`. See the **tech-stack** skill for the backend design.
+
+In Playwright scripts, call the dev login endpoint using `page.request.post()` before navigating to authenticated pages. Because this method shares the browser context's cookie jar, the session cookie is automatically available for all subsequent navigations.
+
+In Claude Desktop Preview, use `preview_click` to submit the login form through the UI — either a dev-mode login shortcut (if the app renders one when `DEV_MODE=1`) or the regular login form with the test user credentials.
+
 ## Best Practices
 
 - **Use bundled scripts as black boxes** - To accomplish a task, consider whether one of the scripts available in `scripts/` can help. These scripts handle common, complex workflows reliably without cluttering the context window. Use `--help` to see usage, then invoke directly.

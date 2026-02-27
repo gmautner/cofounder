@@ -182,7 +182,7 @@ podman exec "$CONTAINER_NAME" pg_isready -U postgres
 ### 2. Start the Go API (terminal 1)
 
 ```bash
-bash -c 'cd backend && DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go run ./cmd/server'
+bash -c 'cd backend && DEV_MODE=1 DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go run ./cmd/server'
 ```
 
 ### 3. Start the Vite dev server (terminal 2)
@@ -251,7 +251,7 @@ After committing and pushing, ask the user if they want to deploy to the cloud. 
 Run unit tests against the local database:
 
 ```bash
-bash -c 'cd backend && DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go test ./...'
+bash -c 'cd backend && DEV_MODE=1 DATABASE_URL="postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" go test ./...'
 ```
 
 - Test files live next to the code they test (`handler/todo_test.go` tests `handler/todo.go`).
@@ -266,7 +266,7 @@ Use the **webapp-testing** skill for Playwright-based end-to-end testing. The `w
 ```bash
 python skills/webapp-testing/scripts/with_server.py \
   --server "podman start $(basename $(pwd))-db || true" --port 5432 \
-  --server "cd backend && DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable' go run ./cmd/server" --port 8080 \
+  --server "cd backend && DEV_MODE=1 DATABASE_URL='postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable' go run ./cmd/server" --port 8080 \
   --server "cd frontend && npm run dev" --port 5173 \
   -- python test_script.py
 ```
@@ -316,6 +316,25 @@ If the application has a user login area, **self sign-in with username and passw
 
 - **Email with magic link** — practical, doesn't require memorization. Requires configuration of an SMTP gateway. See [references/smtp-gateway.md](references/smtp-gateway.md)
 - **Google Auth** — practical, doesn't require memorization. Relies on Google's security mechanisms. Requires configuration of Google Auth (cost free). See [references/google-auth.md](references/google-auth.md)
+
+## Dev Login for Testing
+
+During local development, the agent (Playwright scripts or Claude Desktop Preview) needs to test pages behind authentication. Magic link and Google Auth flows cannot be completed in automated tests, so the backend must expose a **dev-only login endpoint** that bypasses the real auth flow.
+
+### How it works
+
+The backend registers a `POST /api/dev/login` route **only when `DEV_MODE=1`** is set. The guard must be at route registration time (not middleware) so the endpoint physically does not exist without the flag.
+
+This endpoint accepts a user identifier (e.g., email), looks up the user, and creates a session using the exact same mechanism the real auth flow uses — same cookie name, same token format, same session store. The only difference is that it skips the external provider (magic link email or Google OAuth).
+
+### Test user
+
+The dev login handler should create the user on the fly if it doesn't already exist (`INSERT ... ON CONFLICT DO NOTHING`). This keeps the test user out of migrations, which run in all environments including production.
+
+### Security
+
+- The endpoint must **never** be registered when `DEV_MODE` is unset — enforced by the guard at route registration time.
+- Production deployments must **never** set `DEV_MODE`. The deploy skill does not include it.
 
 ## Other References
 
