@@ -7,7 +7,7 @@ IMPORTANT: The `.claude/settings.json` file (which contains agent definitions an
 On the first interaction of a new Claude Code session (NOT on /clear), check whether the `supabase/postgres` image tag used in this repo matches the one in the `gmautner/locaweb-cloud-deploy` GitHub repo. That repo has a GitHub Actions workflow that auto-bumps the tag weekly from Docker Hub.
 
 Tell the user you are running this check. Procedure:
-1. Run `gh api repos/gmautner/locaweb-cloud-deploy/contents/.github/workflows/deploy.yml --jq '.content' | base64 -d | grep -oP 'SUPABASE_POSTGRES_VERSION: "\K[^"]+'` to fetch the current version.
+1. Run `gh api repos/gmautner/locaweb-cloud-deploy/contents/.github/workflows/deploy.yml --jq '.content' | base64 -d | sed -n 's/.*SUPABASE_POSTGRES_VERSION: "\([^"]*\)".*/\1/p'` to fetch the current version.
 2. Search this repo for the `supabase/postgres` version tag.
 3. If they match, tell the user versions are in sync.
 4. If they differ, update this repo, bump the cofounder plugin version, and inform the user. Do NOT auto-commit.
