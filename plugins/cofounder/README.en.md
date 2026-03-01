@@ -77,7 +77,7 @@ Add the marketplace and install the plugin:
 2. Open the sidebar
 3. Click **(+) New Session**
 4. Click the folder below the chat box
-5. Select **Choose a different folder**
+5. Click on **Select folder** or **Choose a different folder**
 6. Click **New Folder**
 7. Choose a name for your project
 8. Click **Open**
